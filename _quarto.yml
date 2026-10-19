@@ -1,0 +1,35 @@
+project:
+  type: website
+  output-dir: docs
+  render:
+    - index.qmd
+    - upi_prophet_forecasting.ipynb
+  resources:
+    - downloads/
+
+website:
+  title: "UPI Forecasting with Prophet"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: upi_prophet_forecasting.ipynb
+        text: Analysis
+      - href: downloads/UPI_Prophet_Report.pdf
+        text: Report
+      - href: downloads/UPI_Prophet_Presentation.pdf
+        text: Slides
+    right:
+      - icon: github
+        href: https://github.com/san2736/upi-project
+
+format:
+  html:
+    theme: flatly
+    toc: true
+    code-fold: true
+    code-summary: "Show code"
+    fig-responsive: true
+
+execute:
+  enabled: false
