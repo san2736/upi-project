@@ -10,7 +10,7 @@ This document describes where the real data comes from, how it was collected, an
 
 Prophet's holiday machinery needs daily observations: a festival effect such as Diwali lasts about two weeks and cannot be separated from ordinary yearly seasonality in monthly data. The National Payments Corporation of India (NPCI) publishes UPI statistics only at monthly granularity, and no public source provides daily UPI volumes.
 
-The approach taken is therefore to generate a daily series whose calendar effects are **known by construction**, while forcing every month to sum exactly to the real NPCI total. This has two advantages:
+The approach taken is therefore to generate a daily series whose calendar effects are **known by construction**, while anchoring it to the real NPCI monthly totals (every month except the few festive months, which are handled as described in §3.4). This has two advantages:
 
 1. The series has realistic level and growth, because it is anchored to real data.
 2. Every holiday, weekday and payday effect has a known true value, so we can measure whether Prophet recovers it, which is not possible with real data.
@@ -88,7 +88,7 @@ where $f_{m(t)}$ is a monthly scaling factor (Section 3.4). The structure is mul
 
 ### 3.2 Components
 
-**Trend.** The average daily volume of each month is placed at mid-month and interpolated on the log scale with a monotone cubic (PCHIP) curve. This gives smooth growth without artificial steps at month boundaries.
+**Trend.** The average daily volume of each month is placed at mid-month and interpolated on the log scale with a monotone cubic (PCHIP) curve. This gives smooth growth without artificial steps at month boundaries. Only anchored (non-festive) months are used as interpolation points; festive months follow the curve through their neighbours (see §3.4).
 
 **Weekday.** Assumed multipliers:
 
@@ -119,15 +119,29 @@ For P2M, positive festival effects are scaled by 1.5, and the Diwali peak is +30
 
 Effects are multiplied. If a payday falls within the Diwali window, both apply.
 
-### 3.4 Anchoring to real monthly totals
+### 3.4 Anchoring to real monthly totals (generator v2)
 
-After all components are applied, each month is multiplied by a single factor
+After all components are applied, every month **except the festive months** is multiplied by a single factor
 
 $$
 f_m = \frac{\text{NPCI total}_m}{\sum_{t \in m} \text{generated}_t}
 $$
 
-so that the synthetic daily values sum exactly to the real NPCI monthly total. The script verifies that the maximum difference is zero.
+so that its synthetic daily values sum exactly to the real NPCI monthly total. The script verifies that the maximum difference over these anchored months is zero.
+
+**Festive months** are months whose injected event lift (holidays plus the hidden sale) exceeds 1%: Oct 2022, Oct 2023, Nov 2023, Oct 2024 and Oct 2025. They are **not** anchored. Their factor is interpolated (on the log scale) from the neighbouring anchored months, so ordinary days follow the trend and the festival sits on top of it. As a result, their totals differ from NPCI by the gap between the injected lift and the festive bump actually present in NPCI's real monthly data:
+
+| Month | Synthetic total vs NPCI (total) | Synthetic total vs NPCI (P2M) |
+|---|---|---|
+| Oct 2022 | +6.52% | +9.11% |
+| Oct 2023 | −1.40% | +0.93% |
+| Nov 2023 | +3.16% | +8.97% |
+| Oct 2024 | +0.06% | +2.90% |
+| Oct 2025 | +5.25% | +7.38% |
+
+These values are also stored in `truth.json` under `festive_month_total_vs_npci_pct`.
+
+**Why (generator v1 issue).** Version 1 anchored every month, including festive ones. NPCI's real monthly data shows a festive bump of the injected size (about +5.5% for the Diwali month) only in October 2024; in October 2022, November 2023 and October 2025 the real bump is close to zero. Forcing those months to match NPCI therefore pushed their *ordinary* days about 5% below trend to make room for the synthetic festival. Prophet measures holiday effects against a smooth trend, so this dip cancelled roughly half of the Diwali effect (estimated about +4% against a true +9.1%) and made Gandhi Jayanti, which falls in those Octobers, look like −9% instead of −5%. The v1 series is kept in `data/archive/synthetic_daily_v1.csv` for comparison.
 
 ### 3.5 Ground truth and the counterfactual
 
@@ -141,8 +155,6 @@ $$
 
 equals exactly the injected holiday and sale multiplier on every day. For example, Dhanteras is exactly +20%. This is the value Prophet's estimated holiday effects are compared against.
 
-A consequence of the shared factor is that, in festive months, the underlying level of ordinary days is slightly lower than in neighbouring months. The real NPCI total already includes the festival, so the month without it would have been smaller. Prophet will partly absorb this into its yearly seasonality.
-
 ---
 
 ## 4. Output files
@@ -152,8 +164,9 @@ A consequence of the shared factor is that, in festive months, the underlying le
 | `data/upi_monthly.csv` | Real NPCI monthly data, Jan 2022 to Aug 2026 |
 | `data/synthetic_daily.csv` | Daily synthetic series (see below) |
 | `data/prophet_holidays.csv` | Known events in Prophet format (`holiday`, `ds`, `lower_window`, `upper_window`); the hidden sale is excluded |
-| `data/truth.json` | Every true parameter: seed, multipliers, event dates and shapes, hidden sale dates and lifts, realised mean effect per event and year |
+| `data/truth.json` | Every true parameter: seed, multipliers, event dates and shapes, hidden sale dates and lifts, realised mean effect per event and year, generator version, festive (non-anchored) months and their deviation from NPCI |
 | `data/synthetic_check.png` | Full series plot and a zoom on the Diwali 2024 window |
+| `data/archive/synthetic_daily_v1.csv` | Daily series from generator v1 (all months anchored), kept for before/after comparison |
 
 Columns of `synthetic_daily.csv`:
 
@@ -172,7 +185,7 @@ Columns of `synthetic_daily.csv`:
 ## 5. Reproducibility
 
 ```bash
-cd ~/upi_project
+cd upi-project
 python scrape_npci.py --start 2022 --end 2026   # real monthly data
 python generate_synthetic.py                    # synthetic daily data, seed 1
 ```
@@ -188,3 +201,4 @@ The same seed and the same `upi_monthly.csv` always produce the same synthetic s
 - **Only four Diwalis fall within the data** (2022 to 2025). Diwali 2026 is on 8 November, after the data ends.
 - **Pre-2022 data was excluded** because the archived NPCI view could not be collected, so the COVID period and earlier structural changes are not covered.
 - **Lunar festival dates must be verified** against an authoritative calendar.
+- **Festive-month totals do not match NPCI exactly.** They differ from it by up to +6.5% (total) and +9.1% (P2M), mostly upwards, because the injected festival effects are larger than the festive bump visible in NPCI's real monthly data (§3.4). All other months match exactly.
