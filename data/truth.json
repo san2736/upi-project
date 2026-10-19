@@ -225,7 +225,7 @@
       "p2m_mean_lift": 0.0581
     },
     "raksha_bandhan_2023": {
-      "total_mean_lift": 0.0388,
+      "total_mean_lift": 0.0387,
       "p2m_mean_lift": 0.0581
     },
     "raksha_bandhan_2024": {
@@ -295,6 +295,36 @@
     "gandhi_jayanti_2025": {
       "total_mean_lift": -0.05,
       "p2m_mean_lift": -0.05
+    }
+  },
+  "generator_version": 2,
+  "festive_months_not_anchored": [
+    "2022-10",
+    "2023-10",
+    "2023-11",
+    "2024-10",
+    "2025-10"
+  ],
+  "festive_month_total_vs_npci_pct": {
+    "2022-10": {
+      "total": 6.52,
+      "p2m": 9.11
+    },
+    "2023-10": {
+      "total": -1.4,
+      "p2m": 0.93
+    },
+    "2023-11": {
+      "total": 3.16,
+      "p2m": 8.97
+    },
+    "2024-10": {
+      "total": 0.06,
+      "p2m": 2.9
+    },
+    "2025-10": {
+      "total": 5.25,
+      "p2m": 7.38
     }
   }
 }
