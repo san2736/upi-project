@@ -1,0 +1,28 @@
+---
+title: "Prophet Model Implementation for Digital Payment Volume Forecasting with Holiday and Event Effects"
+subtitle: "ATSA Group 2: Rohan Dedhia, Duncan D'lima, Sanaz Katpitia"
+toc: false
+---
+
+We forecast daily UPI transaction volume with Prophet and test how much holidays and events improve the forecast.
+
+::: {.callout-note}
+NPCI publishes UPI data monthly only. The daily series here is **synthetic**, built from real NPCI monthly totals (Jan 2022 to Aug 2026) with holiday and event effects of known size.
+:::
+
+## Key results
+
+| | |
+|---|---|
+| **2.45%** | Forecast error (MAPE) of Prophet with holidays and events |
+| **5.54%** | Seasonal naive baseline |
+| **4.96%** | SARIMAX with the same calendar information |
+| **30%** | Lower error on holiday days after adding holidays |
+| **6.2% vs 6.0%** | Estimated vs true payday effect |
+
+## Explore
+
+- [**Analysis**](upi_prophet_forecasting.ipynb): the full notebook with code, charts and explanations
+- [**Report**](downloads/UPI_Prophet_Report.pdf) (PDF)
+- [**Slides**](downloads/UPI_Prophet_Presentation.pdf) (PDF)
+- [**Code and data**](https://github.com/san2736/upi-project) on GitHub

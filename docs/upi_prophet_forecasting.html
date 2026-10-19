@@ -1,0 +1,2069 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Prophet Model Implementation for Digital Payment Volume Forecasting with Holiday and Event Effects – UPI Forecasting with Prophet</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-9d96f532d65220ca877c0304385df42f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">UPI Forecasting with Prophet</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./upi_prophet_forecasting.html" aria-current="page"> 
+<span class="menu-text">Analysis</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./downloads/UPI_Prophet_Report.pdf"> 
+<span class="menu-text">Report</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./downloads/UPI_Prophet_Presentation.pdf"> 
+<span class="menu-text">Slides</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/san2736/upi-project"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">0. Overview</a></li>
+  <li><a href="#data" id="toc-data" class="nav-link" data-scroll-target="#data">1. Data</a>
+  <ul class="collapse">
+  <li><a href="#setup" id="toc-setup" class="nav-link" data-scroll-target="#setup">1.1 Setup</a></li>
+  <li><a href="#load-the-data" id="toc-load-the-data" class="nav-link" data-scroll-target="#load-the-data">1.2 Load the data</a></li>
+  <li><a href="#holidays-and-events" id="toc-holidays-and-events" class="nav-link" data-scroll-target="#holidays-and-events">1.3 Holidays and events</a></li>
+  </ul></li>
+  <li><a href="#exploratory-data-analysis" id="toc-exploratory-data-analysis" class="nav-link" data-scroll-target="#exploratory-data-analysis">2. Exploratory data analysis</a>
+  <ul class="collapse">
+  <li><a href="#the-series" id="toc-the-series" class="nav-link" data-scroll-target="#the-series">2.1 The series</a></li>
+  <li><a href="#stl-decomposition-log-scale-weekly-period" id="toc-stl-decomposition-log-scale-weekly-period" class="nav-link" data-scroll-target="#stl-decomposition-log-scale-weekly-period">2.2 STL decomposition (log scale, weekly period)</a></li>
+  <li><a href="#stationarity-and-autocorrelation" id="toc-stationarity-and-autocorrelation" class="nav-link" data-scroll-target="#stationarity-and-autocorrelation">2.3 Stationarity and autocorrelation</a></li>
+  <li><a href="#weekday-and-day-of-month-profiles" id="toc-weekday-and-day-of-month-profiles" class="nav-link" data-scroll-target="#weekday-and-day-of-month-profiles">2.4 Weekday and day-of-month profiles</a></li>
+  </ul></li>
+  <li><a href="#models" id="toc-models" class="nav-link" data-scroll-target="#models">3. Models</a>
+  <ul class="collapse">
+  <li><a href="#prophet" id="toc-prophet" class="nav-link" data-scroll-target="#prophet">3.1 Prophet</a></li>
+  <li><a href="#sarimax-design-matrix-and-order-selection-by-aic" id="toc-sarimax-design-matrix-and-order-selection-by-aic" class="nav-link" data-scroll-target="#sarimax-design-matrix-and-order-selection-by-aic">3.2 SARIMAX: design matrix and order selection by AIC</a></li>
+  </ul></li>
+  <li><a href="#forecast-evaluation" id="toc-forecast-evaluation" class="nav-link" data-scroll-target="#forecast-evaluation">4. Forecast evaluation</a>
+  <ul class="collapse">
+  <li><a href="#rolling-origin-cross-validation" id="toc-rolling-origin-cross-validation" class="nav-link" data-scroll-target="#rolling-origin-cross-validation">4.1 Rolling-origin cross-validation</a></li>
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">4.2 Results</a></li>
+  </ul></li>
+  <li><a href="#holiday-and-event-effects" id="toc-holiday-and-event-effects" class="nav-link" data-scroll-target="#holiday-and-event-effects">5. Holiday and event effects</a>
+  <ul class="collapse">
+  <li><a href="#estimated-against-true-effect-for-each-holiday-and-event" id="toc-estimated-against-true-effect-for-each-holiday-and-event" class="nav-link" data-scroll-target="#estimated-against-true-effect-for-each-holiday-and-event">5.1 Estimated against true effect for each holiday and event</a></li>
+  </ul></li>
+  <li><a href="#residual-diagnostics" id="toc-residual-diagnostics" class="nav-link" data-scroll-target="#residual-diagnostics">6. Residual diagnostics</a></li>
+  <li><a href="#final-forecast-september-2026-february-2027" id="toc-final-forecast-september-2026-february-2027" class="nav-link" data-scroll-target="#final-forecast-september-2026-february-2027">7. Final forecast: September 2026 – February 2027</a></li>
+  <li><a href="#conclusions" id="toc-conclusions" class="nav-link" data-scroll-target="#conclusions">8. Conclusions</a>
+  <ul class="collapse">
+  <li><a href="#answers-to-the-questions" id="toc-answers-to-the-questions" class="nav-link" data-scroll-target="#answers-to-the-questions">Answers to the questions</a></li>
+  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">Limitations</a></li>
+  <li><a href="#future-scope" id="toc-future-scope" class="nav-link" data-scroll-target="#future-scope">Future scope</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Prophet Model Implementation for Digital Payment Volume Forecasting with Holiday and Event Effects</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><strong>Applied Time Series Analysis (ATSA): Group 2</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Roll no.</th>
+<th>SAP ID</th>
+<th>Name</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>E004</td>
+<td>70382200055</td>
+<td>Rohan Dedhia</td>
+</tr>
+<tr class="even">
+<td>E026</td>
+<td>70382200042</td>
+<td>Duncan D’lima</td>
+</tr>
+<tr class="odd">
+<td>E020</td>
+<td>70382200007</td>
+<td>Sanaz Katpitia</td>
+</tr>
+</tbody>
+</table>
+<p>Date: ___</p>
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">0. Overview</h2>
+<p><strong>Problem.</strong> UPI processes hundreds of millions of payments a day, and daily volume is not smooth. It rises on weekends and paydays, ramps up before Diwali, dips on national holidays and jumps during e-commerce sales. Daily forecasts are needed for server capacity, fraud-monitoring baselines and settlement liquidity, and a forecast that ignores the calendar is wrong on exactly the busiest days.</p>
+<p><strong>What we do.</strong> We forecast daily UPI transaction volume with <strong>Prophet</strong> and test how much the forecast improves when Prophet is told about <strong>holidays</strong> (Diwali, Holi, Eid, Raksha Bandhan, national holidays) and <strong>events</strong> (an e-commerce sale, payday and month-end). We compare against a seasonal naïve baseline and <strong>SARIMAX</strong>.</p>
+<p><strong>Data.</strong> NPCI publishes UPI volume <strong>monthly only</strong>, so we built a <strong>synthetic daily series</strong> anchored to the real NPCI monthly totals (Jan 2022 – Aug 2026), with holiday and event effects of known size. Because the true effects are known, we can also check whether Prophet <strong>recovers</strong> them. <em>All daily values are synthetic; only the monthly totals are real.</em> Details are in <code>DATA.md</code>.</p>
+<p><strong>Questions</strong></p>
+<ol type="1">
+<li>Does adding holidays and events to Prophet improve forecast accuracy, and on which days?</li>
+<li>Does Prophet recover the true size of each holiday and event effect?</li>
+<li>How does Prophet compare with SARIMAX?</li>
+</ol>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Section</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Data</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Exploratory data analysis</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Models</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Forecast evaluation</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Holiday and event effects</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Residual diagnostics</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Final forecast</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Conclusions</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="data" class="level2">
+<h2 class="anchored" data-anchor-id="data">1. Data</h2>
+<section id="setup" class="level3">
+<h3 class="anchored" data-anchor-id="setup">1.1 Setup</h3>
+<div id="2c9eae83" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T09:17:05.701350Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-19T09:17:05.701114Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-19T09:17:07.251153Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T09:17:07.250027Z&quot;}}" data-execution_count="1">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json, logging, warnings, itertools, time</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.dates <span class="im">as</span> mdates</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> joblib <span class="im">import</span> Parallel, delayed</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> prophet <span class="im">import</span> Prophet</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> statsmodels.tsa.statespace.sarimax <span class="im">import</span> SARIMAX</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> statsmodels.tsa.seasonal <span class="im">import</span> STL</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> statsmodels.tsa.stattools <span class="im">import</span> adfuller, kpss, acf</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> statsmodels.stats.diagnostic <span class="im">import</span> acorr_ljungbox, het_arch</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> statsmodels.graphics.tsaplots <span class="im">import</span> plot_acf, plot_pacf</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> quiet():</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Silence Stan/Prophet log messages (also called inside parallel workers)."""</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    warnings.filterwarnings(<span class="st">"ignore"</span>)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> name <span class="kw">in</span> (<span class="st">"cmdstanpy"</span>, <span class="st">"prophet"</span>, <span class="st">"prophet.plot"</span>):</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>        logging.getLogger(name).disabled <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>quiet()</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>DATA, OUT <span class="op">=</span> Path(<span class="st">"data"</span>), Path(<span class="st">"results"</span>)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>OUT.mkdir(exist_ok<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>N_JOBS <span class="op">=</span> <span class="op">-</span><span class="dv">1</span>          <span class="co"># run cross-validation folds on all CPU cores</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>C_ACTUAL, C_MODEL, C_TRUTH, C_ALT, C_GRID <span class="op">=</span> <span class="st">"#2a78d6"</span>, <span class="st">"#eb6834"</span>, <span class="st">"#52514e"</span>, <span class="st">"#1baf7a"</span>, <span class="st">"#e4e3df"</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>plt.rcParams.update({</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    <span class="st">"figure.dpi"</span>: <span class="dv">110</span>, <span class="st">"savefig.dpi"</span>: <span class="dv">150</span>, <span class="st">"savefig.bbox"</span>: <span class="st">"tight"</span>,</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    <span class="st">"axes.spines.top"</span>: <span class="va">False</span>, <span class="st">"axes.spines.right"</span>: <span class="va">False</span>, <span class="st">"axes.grid"</span>: <span class="va">True</span>,</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    <span class="st">"grid.color"</span>: C_GRID, <span class="st">"grid.linewidth"</span>: <span class="fl">0.6</span>, <span class="st">"axes.titlesize"</span>: <span class="dv">11</span>, <span class="st">"axes.titleweight"</span>: <span class="st">"bold"</span>,</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    <span class="st">"axes.labelsize"</span>: <span class="dv">9</span>, <span class="st">"xtick.labelsize"</span>: <span class="dv">8</span>, <span class="st">"ytick.labelsize"</span>: <span class="dv">8</span>,</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    <span class="st">"legend.fontsize"</span>: <span class="dv">8</span>, <span class="st">"legend.frameon"</span>: <span class="va">False</span>, <span class="st">"lines.linewidth"</span>: <span class="fl">1.4</span>,</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> show(fig, name):</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    fig.savefig(OUT <span class="op">/</span> <span class="ss">f"</span><span class="sc">{</span>name<span class="sc">}</span><span class="ss">.png"</span>)</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="load-the-data" class="level3">
+<h3 class="anchored" data-anchor-id="load-the-data">1.2 Load the data</h3>
+<ul>
+<li><strong><code>upi_monthly.csv</code></strong>: the real NPCI monthly totals, scraped from npci.org.in.</li>
+<li><strong><code>synthetic_daily.csv</code></strong>: the daily series built from them:
+<ul>
+<li><code>y</code> is daily volume in millions of transactions.</li>
+<li><code>true_effect</code> is the injected holiday and event effect on each day, which is our ground truth.</li>
+</ul></li>
+<li><strong><code>prophet_holidays.csv</code></strong>: festival and holiday dates with their windows.</li>
+<li><strong><code>holidays.csv</code></strong>: the gazetted national holiday list.</li>
+<li><strong><code>truth.json</code></strong>: every injected parameter, including the sale dates.</li>
+</ul>
+<p><strong>How the daily series is built (short version):</strong></p>
+<ul>
+<li>A smooth trend through NPCI’s monthly averages.</li>
+<li>Multiplied by weekday, payday, holiday, sale and noise effects.</li>
+<li>Every month then sums exactly to the NPCI total, except five festive months.</li>
+</ul>
+<p>The five festive months are not forced to match. Forcing them pushed their ordinary days about 5% below trend and hid half of the Diwali effect. We found this in the first version of our generator and fixed it (<code>DATA.md</code> §3.4).</p>
+<div id="1fca11a5" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T09:17:07.254120Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-19T09:17:07.253839Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-19T09:17:07.287424Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T09:17:07.285808Z&quot;}}" data-execution_count="2">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(DATA <span class="op">/</span> <span class="st">"synthetic_daily.csv"</span>, parse_dates<span class="op">=</span>[<span class="st">"ds"</span>])</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>monthly <span class="op">=</span> pd.read_csv(DATA <span class="op">/</span> <span class="st">"upi_monthly.csv"</span>, parse_dates<span class="op">=</span>[<span class="st">"month"</span>])</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>festivals <span class="op">=</span> pd.read_csv(DATA <span class="op">/</span> <span class="st">"prophet_holidays.csv"</span>, parse_dates<span class="op">=</span>[<span class="st">"ds"</span>])</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>national <span class="op">=</span> pd.read_csv(DATA <span class="op">/</span> <span class="st">"holidays.csv"</span>, parse_dates<span class="op">=</span>[<span class="st">"ds"</span>])</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>truth <span class="op">=</span> json.load(<span class="bu">open</span>(DATA <span class="op">/</span> <span class="st">"truth.json"</span>))</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span><span class="bu">len</span>(df)<span class="sc">}</span><span class="ss"> days, </span><span class="sc">{</span>df<span class="sc">.</span>ds<span class="sc">.</span><span class="bu">min</span>()<span class="sc">.</span>date()<span class="sc">}</span><span class="ss"> to </span><span class="sc">{</span>df<span class="sc">.</span>ds<span class="sc">.</span><span class="bu">max</span>()<span class="sc">.</span>date()<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>df[[<span class="st">"ds"</span>, <span class="st">"y"</span>, <span class="st">"is_payday"</span>, <span class="st">"is_monthend"</span>, <span class="st">"true_effect"</span>]].head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>1704 days, 2022-01-01 to 2026-08-31</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="2">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">ds</th>
+<th data-quarto-table-cell-role="th">y</th>
+<th data-quarto-table-cell-role="th">is_payday</th>
+<th data-quarto-table-cell-role="th">is_monthend</th>
+<th data-quarto-table-cell-role="th">true_effect</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>2022-01-01</td>
+<td>155.413512</td>
+<td>1</td>
+<td>0</td>
+<td>0.0</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>2022-01-02</td>
+<td>142.543802</td>
+<td>1</td>
+<td>0</td>
+<td>0.0</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>2022-01-03</td>
+<td>149.680703</td>
+<td>1</td>
+<td>0</td>
+<td>0.0</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>2022-01-04</td>
+<td>150.994083</td>
+<td>1</td>
+<td>0</td>
+<td>0.0</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>2022-01-05</td>
+<td>150.568082</td>
+<td>1</td>
+<td>0</td>
+<td>0.0</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="holidays-and-events" class="level3">
+<h3 class="anchored" data-anchor-id="holidays-and-events">1.3 Holidays and events</h3>
+<p><strong>Holidays</strong> are recurring public or cultural dates. Each one gets a <strong>window</strong> of days around it, because spending changes before and after the day itself:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Holiday</th>
+<th>Window (days)</th>
+<th>Injected effect</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Diwali</td>
+<td>−10 to +3</td>
+<td>ramp up to +20% on Dhanteras and Diwali eve, then a dip</td>
+</tr>
+<tr class="even">
+<td>Holi</td>
+<td>−2 to +1</td>
+<td>+8% on the two days before, −10% on the day</td>
+</tr>
+<tr class="odd">
+<td>Eid al-Fitr</td>
+<td>−3 to 0</td>
+<td>ramps up to +6%</td>
+</tr>
+<tr class="even">
+<td>Raksha Bandhan</td>
+<td>−3 to 0</td>
+<td>ramps up to +5%</td>
+</tr>
+<tr class="odd">
+<td>Republic Day, Independence Day, Gandhi Jayanti</td>
+<td>0</td>
+<td>−5%</td>
+</tr>
+</tbody>
+</table>
+<p>Other gazetted holidays (Dussehra, Christmas, …) are also given to the model as single days. Their true effect is zero, so they test whether the model wrongly invents effects.</p>
+<p><strong>Events</strong> are non-holiday calendar effects:</p>
+<ul>
+<li><strong>E-commerce sale.</strong> One 4–6 day sale per year, about 2½ weeks before Diwali, lifting volume by 8–12%. Sale dates are announced in advance by retailers, so they can be supplied to a forecast. The dates come from <code>truth.json</code>.</li>
+<li><strong>Payday.</strong> Days 1–5 of each month, when salaries are credited: +6%.</li>
+<li><strong>Month-end.</strong> The last 2 days of each month: +3%.</li>
+</ul>
+<p>Each day is labelled for the evaluation: <strong>holiday window</strong>, <strong>sale event</strong>, or <strong>ordinary</strong>.</p>
+<div id="2eec8f44" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T09:17:07.289426Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-19T09:17:07.289238Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-19T09:17:07.314063Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T09:17:07.312476Z&quot;}}" data-execution_count="3">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>sale_rows <span class="op">=</span> truth[<span class="st">"hidden_sale_NOT_given_to_prophet"</span>]   <span class="co"># the generator's name for the sale; we now use it as an event</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>sale <span class="op">=</span> pd.DataFrame({<span class="st">"holiday"</span>: <span class="st">"ecommerce_sale"</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"ds"</span>: pd.to_datetime([s[<span class="st">"start"</span>] <span class="cf">for</span> s <span class="kw">in</span> sale_rows]),</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"lower_window"</span>: <span class="dv">0</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"upper_window"</span>: [s[<span class="st">"days"</span>] <span class="op">-</span> <span class="dv">1</span> <span class="cf">for</span> s <span class="kw">in</span> sale_rows]})</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>national_single <span class="op">=</span> (national.assign(lower_window<span class="op">=</span><span class="dv">0</span>, upper_window<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>                   [[<span class="st">"holiday"</span>, <span class="st">"ds"</span>, <span class="st">"lower_window"</span>, <span class="st">"upper_window"</span>]])</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>national_single <span class="op">=</span> national_single[<span class="op">~</span>national_single.ds.isin(<span class="bu">set</span>(festivals.ds))]   <span class="co"># a window replaces the same-date single day</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>HOLIDAYS <span class="op">=</span> pd.concat([festivals, national_single], ignore_index<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>HOLIDAYS_AND_EVENTS <span class="op">=</span> pd.concat([HOLIDAYS, sale], ignore_index<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> window_days(table):</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    days <span class="op">=</span> <span class="bu">set</span>()</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _, r <span class="kw">in</span> table.iterrows():</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>        days <span class="op">|=</span> <span class="bu">set</span>(pd.date_range(r.ds <span class="op">+</span> pd.Timedelta(days<span class="op">=</span><span class="bu">int</span>(r.lower_window)),</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>                                  r.ds <span class="op">+</span> pd.Timedelta(days<span class="op">=</span><span class="bu">int</span>(r.upper_window))))</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> days</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>sale_days <span class="op">=</span> window_days(sale)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"day_type"</span>] <span class="op">=</span> np.select([df.ds.isin(sale_days), df.ds.isin(window_days(festivals))],</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>                           [<span class="st">"sale event"</span>, <span class="st">"holiday window"</span>], <span class="st">"ordinary"</span>)</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>DAY_TYPES <span class="op">=</span> [<span class="st">"ordinary"</span>, <span class="st">"holiday window"</span>, <span class="st">"sale event"</span>]</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>sale</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">holiday</th>
+<th data-quarto-table-cell-role="th">ds</th>
+<th data-quarto-table-cell-role="th">lower_window</th>
+<th data-quarto-table-cell-role="th">upper_window</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>ecommerce_sale</td>
+<td>2022-10-07</td>
+<td>0</td>
+<td>4</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>ecommerce_sale</td>
+<td>2023-10-28</td>
+<td>0</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>ecommerce_sale</td>
+<td>2024-10-15</td>
+<td>0</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>ecommerce_sale</td>
+<td>2025-10-04</td>
+<td>0</td>
+<td>5</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>ecommerce_sale</td>
+<td>2026-10-21</td>
+<td>0</td>
+<td>4</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="exploratory-data-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="exploratory-data-analysis">2. Exploratory data analysis</h2>
+<section id="the-series" class="level3">
+<h3 class="anchored" data-anchor-id="the-series">2.1 The series</h3>
+<div id="7e2940d0" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T09:17:07.315977Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-19T09:17:07.315794Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-19T09:17:07.780044Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T09:17:07.779345Z&quot;}}" data-execution_count="4">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">6</span>), sharex<span class="op">=</span><span class="va">True</span>, gridspec_kw<span class="op">=</span>{<span class="st">"height_ratios"</span>: [<span class="dv">2</span>, <span class="dv">1</span>]})</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].plot(df.ds, df.y, color<span class="op">=</span>C_ACTUAL, lw<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_ylabel(<span class="st">"million txns / day"</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_title(<span class="st">"Daily UPI volume (synthetic, anchored to NPCI monthly totals)"</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> d <span class="kw">in</span> festivals.query(<span class="st">"holiday == 'diwali'"</span>).ds:</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> d <span class="op">&lt;=</span> df.ds.<span class="bu">max</span>():</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>        ax[<span class="dv">0</span>].axvline(d, color<span class="op">=</span>C_MODEL, lw<span class="op">=</span><span class="fl">0.8</span>, ls<span class="op">=</span><span class="st">"--"</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].plot(df.ds, np.log(df.y), color<span class="op">=</span>C_ACTUAL, lw<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_ylabel(<span class="st">"log volume"</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>show(fig, <span class="st">"2_1_series"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="upi_prophet_forecasting_files/figure-html/cell-5-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Reading:</strong></p>
+<ul>
+<li><strong>Volume grows about fivefold</strong> over the period, from about 150 to about 800 million transactions a day.</li>
+<li><strong>On the log scale the growth is close to linear,</strong> gently slowing.</li>
+<li><strong>Festival seasons (dashed lines: Diwali) show visible bumps.</strong></li>
+<li><strong>The weekly up-and-down pattern grows with the level.</strong> That is the sign of <strong>multiplicative</strong> seasonality.</li>
+</ul>
+</section>
+<section id="stl-decomposition-log-scale-weekly-period" class="level3">
+<h3 class="anchored" data-anchor-id="stl-decomposition-log-scale-weekly-period">2.2 STL decomposition (log scale, weekly period)</h3>
+<div id="7b949e77" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T09:17:07.781689Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-19T09:17:07.781466Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-19T09:17:08.656490Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T09:17:08.654862Z&quot;}}" data-execution_count="5">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>stl <span class="op">=</span> STL(np.log(df.set_index(<span class="st">"ds"</span>).y), period<span class="op">=</span><span class="dv">7</span>, robust<span class="op">=</span><span class="va">True</span>).fit()</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> stl.plot()</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>fig.set_size_inches(<span class="dv">11</span>, <span class="dv">7</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> a <span class="kw">in</span> fig.axes:</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> line <span class="kw">in</span> a.get_lines():</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        line.set_linewidth(<span class="fl">0.6</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>show(fig, <span class="st">"2_2_stl"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="upi_prophet_forecasting_files/figure-html/cell-6-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Reading:</strong></p>
+<ul>
+<li><strong>The weekly component is large and stable,</strong> with Sunday about 7–9% below the weekly mean.</li>
+<li><strong>The festival seasons appear as bumps in the <em>trend</em> panel</strong> each Oct–Nov.&nbsp;A two-week festival is long enough for STL to absorb it into the trend, so a plain decomposition cannot separate festivals from growth. That is why holidays have to be modelled explicitly.</li>
+</ul>
+</section>
+<section id="stationarity-and-autocorrelation" class="level3">
+<h3 class="anchored" data-anchor-id="stationarity-and-autocorrelation">2.3 Stationarity and autocorrelation</h3>
+<ul>
+<li><strong>ADF test:</strong> the null hypothesis is a unit root (non-stationary).</li>
+<li><strong>KPSS test:</strong> the null hypothesis is stationarity.</li>
+</ul>
+<p>A series counts as stationary only when both agree.</p>
+<div id="025dffbe" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T09:17:08.659329Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-19T09:17:08.659039Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-19T09:17:08.746121Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T09:17:08.745652Z&quot;}}" data-execution_count="6">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> stationarity(x, label):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    adf_p, kpss_p <span class="op">=</span> adfuller(x, autolag<span class="op">=</span><span class="st">"AIC"</span>)[<span class="dv">1</span>], kpss(x, regression<span class="op">=</span><span class="st">"c"</span>, nlags<span class="op">=</span><span class="st">"auto"</span>)[<span class="dv">1</span>]</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">"series"</span>: label, <span class="st">"ADF p"</span>: <span class="bu">round</span>(adf_p, <span class="dv">4</span>), <span class="st">"KPSS p"</span>: <span class="bu">round</span>(kpss_p, <span class="dv">4</span>),</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>            <span class="st">"verdict"</span>: <span class="st">"stationary"</span> <span class="cf">if</span> adf_p <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="kw">and</span> kpss_p <span class="op">&gt;</span> <span class="fl">0.05</span> <span class="cf">else</span> <span class="st">"non-stationary"</span>}</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>ly <span class="op">=</span> np.log(df.y.values)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>pd.DataFrame([stationarity(ly, <span class="st">"log y"</span>), stationarity(np.diff(ly), <span class="st">"Δ log y (first difference)"</span>)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">series</th>
+<th data-quarto-table-cell-role="th">ADF p</th>
+<th data-quarto-table-cell-role="th">KPSS p</th>
+<th data-quarto-table-cell-role="th">verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>log y</td>
+<td>0.0739</td>
+<td>0.01</td>
+<td>non-stationary</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>Δ log y (first difference)</td>
+<td>0.0000</td>
+<td>0.10</td>
+<td>stationary</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="d53e628b" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T09:17:08.751754Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-19T09:17:08.751316Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-19T09:17:09.143255Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T09:17:09.142603Z&quot;}}" data-execution_count="7">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">3.2</span>))</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>plot_acf(np.diff(ly), lags<span class="op">=</span><span class="dv">35</span>, ax<span class="op">=</span>ax[<span class="dv">0</span>], color<span class="op">=</span>C_ACTUAL, vlines_kwargs<span class="op">=</span>{<span class="st">"colors"</span>: C_ACTUAL})</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>plot_pacf(np.diff(ly), lags<span class="op">=</span><span class="dv">35</span>, ax<span class="op">=</span>ax[<span class="dv">1</span>], method<span class="op">=</span><span class="st">"ywm"</span>, color<span class="op">=</span>C_ACTUAL, vlines_kwargs<span class="op">=</span>{<span class="st">"colors"</span>: C_ACTUAL})</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_title(<span class="st">"ACF of Δ log y"</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_title(<span class="st">"PACF of Δ log y"</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>show(fig, <span class="st">"2_3_acf_pacf"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="upi_prophet_forecasting_files/figure-html/cell-8-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Reading:</strong></p>
+<ul>
+<li><strong>Log volume is non-stationary; one difference makes it stationary.</strong> So SARIMAX uses <span class="math inline">\(d = 1\)</span>.</li>
+<li><strong>The ACF has strong spikes at lags 7, 14, 21, 28,</strong> a weekly cycle, so the seasonal period is <span class="math inline">\(s = 7\)</span>. The spikes barely decay, so the weekly pattern is stable. We model it with seasonal AR/MA terms (<span class="math inline">\(D = 0\)</span>).</li>
+<li><strong>The large negative lag-1 value</strong> points to low-order non-seasonal AR/MA terms.</li>
+</ul>
+</section>
+<section id="weekday-and-day-of-month-profiles" class="level3">
+<h3 class="anchored" data-anchor-id="weekday-and-day-of-month-profiles">2.4 Weekday and day-of-month profiles</h3>
+<p>Each day is divided by a centred 28-day average (to remove the trend). Holiday and sale days are left out, then the ratios are averaged.</p>
+<div id="f6e4ff45" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T09:17:09.146222Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-19T09:17:09.146016Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-19T09:17:09.482967Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T09:17:09.481611Z&quot;}}" data-execution_count="8">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>tmp <span class="op">=</span> df.set_index(<span class="st">"ds"</span>).copy()</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>tmp[<span class="st">"ratio"</span>] <span class="op">=</span> tmp.y <span class="op">/</span> tmp.y.rolling(<span class="dv">28</span>, center<span class="op">=</span><span class="va">True</span>).mean()</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>tmp <span class="op">=</span> tmp[(tmp.day_type <span class="op">==</span> <span class="st">"ordinary"</span>) <span class="op">&amp;</span> tmp.ratio.notna()]</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">3.2</span>))</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>wd <span class="op">=</span> tmp.groupby(tmp.index.dayofweek).ratio.mean()</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>dm <span class="op">=</span> tmp.groupby(tmp.index.day).ratio.mean()</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].bar([<span class="st">"Mon"</span>, <span class="st">"Tue"</span>, <span class="st">"Wed"</span>, <span class="st">"Thu"</span>, <span class="st">"Fri"</span>, <span class="st">"Sat"</span>, <span class="st">"Sun"</span>], (wd <span class="op">-</span> <span class="dv">1</span>) <span class="op">*</span> <span class="dv">100</span>, color<span class="op">=</span>C_ACTUAL, width<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_title(<span class="st">"Weekday profile (% vs 28-day mean)"</span>)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].bar(dm.index, (dm <span class="op">-</span> <span class="dv">1</span>) <span class="op">*</span> <span class="dv">100</span>, color<span class="op">=</span>C_ACTUAL, width<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_title(<span class="st">"Day-of-month profile (% vs 28-day mean)"</span>)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_xlabel(<span class="st">"day of month"</span>)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> a <span class="kw">in</span> ax:</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    a.axhline(<span class="dv">0</span>, color<span class="op">=</span>C_TRUTH, lw<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>show(fig, <span class="st">"2_4_calendar_profiles"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="upi_prophet_forecasting_files/figure-html/cell-9-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Reading:</strong></p>
+<ul>
+<li><strong>Weekdays:</strong> Saturday is about 3% above average and Sunday about 6.5% below.</li>
+<li><strong>Paydays:</strong> days 1–5 are about 4.5% above the 28-day mean, and the last two days of the month about 1.7%.</li>
+</ul>
+<p>Both are recurring calendar events that the models should capture.</p>
+</section>
+</section>
+<section id="models" class="level2">
+<h2 class="anchored" data-anchor-id="models">3. Models</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Model</th>
+<th>Holidays</th>
+<th>Events (payday, month-end, sale)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>M1</td>
+<td>Seasonal naïve: the same weekday last week</td>
+<td>–</td>
+<td>–</td>
+</tr>
+<tr class="even">
+<td>M2</td>
+<td>SARIMAX, order chosen by AIC</td>
+<td>✓ (dummies)</td>
+<td>✓ (dummies)</td>
+</tr>
+<tr class="odd">
+<td>M3</td>
+<td>Prophet, base: trend + weekly + yearly</td>
+<td>–</td>
+<td>–</td>
+</tr>
+<tr class="even">
+<td>M4</td>
+<td>Prophet + holidays</td>
+<td>✓</td>
+<td>–</td>
+</tr>
+<tr class="odd">
+<td>M5</td>
+<td>Prophet + holidays + events</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+</tbody>
+</table>
+<p><strong>M3 → M4 → M5 is the core comparison of this project:</strong> each step adds one kind of calendar knowledge. SARIMAX gets the full calendar information (the same as M5), so the Prophet vs SARIMAX comparison is fair.</p>
+<section id="prophet" class="level3">
+<h3 class="anchored" data-anchor-id="prophet">3.1 Prophet</h3>
+<p>In multiplicative mode Prophet models</p>
+<p><span class="math display">\[y(t) = g(t)\,\big[\,1 + s(t) + h(t) + \beta^\top x(t)\,\big] + \varepsilon_t\]</span></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Term</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(g(t)\)</span></td>
+<td>piecewise-linear <strong>trend</strong>; its slope can change at “changepoints”</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(s(t)\)</span></td>
+<td><strong>seasonality</strong> as Fourier series (weekly, yearly)</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(h(t)\)</span></td>
+<td><strong>holiday/event</strong> effects: one coefficient per day of each window, so Prophet learns the <em>shape</em> of a festival (e.g.&nbsp;Diwali’s ramp)</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(x(t)\)</span></td>
+<td>extra <strong>regressors</strong> (payday, month-end), with coefficients <span class="math inline">\(\beta\)</span></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Why these choices:</strong></p>
+<ul>
+<li><strong>Multiplicative mode:</strong> volume grew about 5×, and a festival adds a <em>percentage</em> of current volume, not a fixed count.</li>
+<li><strong>Payday and month-end as regressors:</strong> they are known in advance, and a 30.5-day Fourier term cannot line up with calendar months.</li>
+<li><strong>A sale with a different length each year:</strong> each year gets its own window length via <code>upper_window</code>.</li>
+</ul>
+<p><strong>Settings:</strong></p>
+<ul>
+<li><code>changepoint_prior_scale = 0.005</code> gives a smooth trend.</li>
+<li><code>yearly_seasonality = 3</code> is a low-order yearly curve. A flexible yearly curve partly absorbs Diwali, because Diwali always falls in Oct–Nov.</li>
+<li>These two values performed best in a preliminary cross-validated search. The holiday and seasonality prior scales made almost no difference, so they stay at Prophet’s defaults.</li>
+</ul>
+<div id="5a653385" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T09:17:09.485414Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-19T09:17:09.485197Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-19T09:17:09.490597Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T09:17:09.489454Z&quot;}}" data-execution_count="9">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>PROPHET_SETTINGS <span class="op">=</span> <span class="bu">dict</span>(growth<span class="op">=</span><span class="st">"linear"</span>, seasonality_mode<span class="op">=</span><span class="st">"multiplicative"</span>, changepoint_prior_scale<span class="op">=</span><span class="fl">0.005</span>,</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>                        yearly_seasonality<span class="op">=</span><span class="dv">3</span>, weekly_seasonality<span class="op">=</span><span class="va">True</span>, daily_seasonality<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                        interval_width<span class="op">=</span><span class="fl">0.90</span>, uncertainty_samples<span class="op">=</span><span class="dv">500</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> make_prophet(model):</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""M3 = base, M4 = + holidays, M5 = + holidays + events."""</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    holidays <span class="op">=</span> {<span class="st">"M3"</span>: <span class="va">None</span>, <span class="st">"M4"</span>: HOLIDAYS, <span class="st">"M5"</span>: HOLIDAYS_AND_EVENTS}[model]</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    m <span class="op">=</span> Prophet(holidays<span class="op">=</span>holidays, <span class="op">**</span>PROPHET_SETTINGS)</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> model <span class="op">==</span> <span class="st">"M5"</span>:</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>        m.add_regressor(<span class="st">"is_payday"</span>, mode<span class="op">=</span><span class="st">"multiplicative"</span>)</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>        m.add_regressor(<span class="st">"is_monthend"</span>, mode<span class="op">=</span><span class="st">"multiplicative"</span>)</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> m</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>FIT_COLS, PRED_COLS <span class="op">=</span> [<span class="st">"ds"</span>, <span class="st">"y"</span>, <span class="st">"is_payday"</span>, <span class="st">"is_monthend"</span>], [<span class="st">"ds"</span>, <span class="st">"is_payday"</span>, <span class="st">"is_monthend"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="sarimax-design-matrix-and-order-selection-by-aic" class="level3">
+<h3 class="anchored" data-anchor-id="sarimax-design-matrix-and-order-selection-by-aic">3.2 SARIMAX: design matrix and order selection by AIC</h3>
+<p>SARIMAX here is a <strong>regression with seasonal ARIMA errors on log volume</strong>. Its exogenous variables carry the same calendar information as Prophet M5:</p>
+<ul>
+<li>one 0/1 dummy per (holiday or sale, day of window);</li>
+<li>payday and month-end dummies;</li>
+<li>yearly Fourier terms.</li>
+</ul>
+<p><code>trend="c"</code> adds a drift term (constant growth after differencing).</p>
+<p>The order is chosen with the course’s <code>optimize_SARIMAX</code> procedure:</p>
+<ul>
+<li>fit every <span class="math inline">\((p, q, P, Q)\)</span> with <span class="math inline">\(p, q \in \{0,1,2\}\)</span>, <span class="math inline">\(P, Q \in \{0,1\}\)</span>, <span class="math inline">\(d = 1\)</span>, <span class="math inline">\(D = 0\)</span>, <span class="math inline">\(s = 7\)</span> (from Section 2.3);</li>
+<li>keep the lowest <strong>AIC</strong>.</li>
+</ul>
+<p>The search uses <strong>only the first two years</strong> (2022–2023), so nothing from the evaluation period influences the choice. 36 models are fitted in parallel, which takes a few minutes.</p>
+<div id="fa1bad1d" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T09:17:09.492683Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-19T09:17:09.492436Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-19T09:22:09.692591Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T09:22:09.691173Z&quot;}}" data-execution_count="10">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calendar_exog(dates, table<span class="op">=</span>HOLIDAYS_AND_EVENTS, fourier_k<span class="op">=</span><span class="dv">3</span>):</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""One dummy per (holiday/event, day offset) + payday + month-end + yearly Fourier terms."""</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    dates <span class="op">=</span> pd.DatetimeIndex(dates)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    X <span class="op">=</span> {}</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _, r <span class="kw">in</span> table.iterrows():</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">int</span>(r.lower_window), <span class="bu">int</span>(r.upper_window) <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>            col <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>r<span class="sc">.</span>holiday<span class="sc">}</span><span class="ss">_</span><span class="sc">{</span>k<span class="sc">:+d}</span><span class="ss">"</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>            X.setdefault(col, np.zeros(<span class="bu">len</span>(dates)))</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>            X[col][dates <span class="op">==</span> r.ds <span class="op">+</span> pd.Timedelta(days<span class="op">=</span>k)] <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    X <span class="op">=</span> pd.DataFrame(X, index<span class="op">=</span>dates)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    X[<span class="st">"is_payday"</span>] <span class="op">=</span> (dates.day <span class="op">&lt;=</span> <span class="dv">5</span>).astype(<span class="bu">float</span>)</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    X[<span class="st">"is_monthend"</span>] <span class="op">=</span> (dates.day <span class="op">&gt;</span> dates.days_in_month <span class="op">-</span> <span class="dv">2</span>).astype(<span class="bu">float</span>)</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    t <span class="op">=</span> dates.dayofyear.values <span class="op">/</span> <span class="fl">365.25</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, fourier_k <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>        X[<span class="ss">f"sin</span><span class="sc">{</span>k<span class="sc">}</span><span class="ss">"</span>], X[<span class="ss">f"cos</span><span class="sc">{</span>k<span class="sc">}</span><span class="ss">"</span>] <span class="op">=</span> np.sin(<span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> k <span class="op">*</span> t), np.cos(<span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> k <span class="op">*</span> t)</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> X</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>X_all <span class="op">=</span> calendar_exog(pd.date_range(df.ds.<span class="bu">min</span>(), <span class="st">"2027-03-31"</span>))</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> optimize_SARIMAX(endog, exog, parameters_list, d, D, s):</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Course function (ATSA notebook 8), run in parallel. Returns (p,q,P,Q) with AIC and BIC, best first."""</span></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> fit_one(param):</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>        quiet()</span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span>:</span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>            r <span class="op">=</span> SARIMAX(endog, exog, order<span class="op">=</span>(param[<span class="dv">0</span>], d, param[<span class="dv">1</span>]), seasonal_order<span class="op">=</span>(param[<span class="dv">2</span>], D, param[<span class="dv">3</span>], s),</span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>                        trend<span class="op">=</span><span class="st">"c"</span>, simple_differencing<span class="op">=</span><span class="va">False</span>).fit(disp<span class="op">=</span><span class="va">False</span>, maxiter<span class="op">=</span><span class="dv">200</span>)</span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> [param, r.aic, r.bic, r.params]</span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>        <span class="cf">except</span> <span class="pp">Exception</span>:</span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">None</span></span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>    results <span class="op">=</span> [r <span class="cf">for</span> r <span class="kw">in</span> Parallel(n_jobs<span class="op">=</span>N_JOBS)(delayed(fit_one)(p) <span class="cf">for</span> p <span class="kw">in</span> parameters_list) <span class="cf">if</span> r]</span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (pd.DataFrame(results, columns<span class="op">=</span>[<span class="st">"(p,q,P,Q)"</span>, <span class="st">"AIC"</span>, <span class="st">"BIC"</span>, <span class="st">"params"</span>])</span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>            .sort_values(<span class="st">"AIC"</span>).reset_index(drop<span class="op">=</span><span class="va">True</span>))</span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a>first_two_years <span class="op">=</span> df[df.ds <span class="op">&lt;</span> <span class="st">"2024-01-01"</span>]</span>
+<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a>endog <span class="op">=</span> np.log(first_two_years.y.values)</span>
+<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a>exog <span class="op">=</span> X_all.loc[first_two_years.ds]</span>
+<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a>exog <span class="op">=</span> exog.loc[:, exog.<span class="bu">sum</span>() <span class="op">!=</span> <span class="dv">0</span>]</span>
+<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a>t0 <span class="op">=</span> time.time()</span>
+<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a>aic_tab <span class="op">=</span> optimize_SARIMAX(endog, exog, <span class="bu">list</span>(itertools.product(<span class="bu">range</span>(<span class="dv">3</span>), <span class="bu">range</span>(<span class="dv">3</span>), <span class="bu">range</span>(<span class="dv">2</span>), <span class="bu">range</span>(<span class="dv">2</span>))),</span>
+<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a>                           d<span class="op">=</span><span class="dv">1</span>, D<span class="op">=</span><span class="dv">0</span>, s<span class="op">=</span><span class="dv">7</span>)</span>
+<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"36 models in </span><span class="sc">{</span>time<span class="sc">.</span>time() <span class="op">-</span> t0<span class="sc">:.0f}</span><span class="ss">s"</span>)</span>
+<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a>aic_tab[[<span class="st">"(p,q,P,Q)"</span>, <span class="st">"AIC"</span>, <span class="st">"BIC"</span>]].head(<span class="dv">5</span>).<span class="bu">round</span>(<span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>36 models in 300s</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="10">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">(p,q,P,Q)</th>
+<th data-quarto-table-cell-role="th">AIC</th>
+<th data-quarto-table-cell-role="th">BIC</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>(1, 1, 1, 1)</td>
+<td>-3091.9</td>
+<td>-2807.2</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>(1, 2, 1, 1)</td>
+<td>-3083.1</td>
+<td>-2793.8</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>(2, 2, 1, 1)</td>
+<td>-3081.0</td>
+<td>-2787.1</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>(0, 2, 1, 1)</td>
+<td>-3070.5</td>
+<td>-2785.8</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>(2, 1, 1, 1)</td>
+<td>-3069.4</td>
+<td>-2780.1</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="942cfe02" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T09:22:09.695065Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-19T09:22:09.694792Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-19T09:22:11.395449Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T09:22:11.393350Z&quot;}}" data-execution_count="11">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>p, q, P, Q <span class="op">=</span> aic_tab.loc[<span class="dv">0</span>, <span class="st">"(p,q,P,Q)"</span>]</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>SARIMAX_ORDER <span class="op">=</span> {<span class="st">"order"</span>: (p, <span class="dv">1</span>, q), <span class="st">"seasonal_order"</span>: (P, <span class="dv">0</span>, Q, <span class="dv">7</span>)}</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Re-use the exact parameters found in the search, so this summary and AIC match the table above</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>sar <span class="op">=</span> SARIMAX(endog, exog, <span class="op">**</span>SARIMAX_ORDER, trend<span class="op">=</span><span class="st">"c"</span>, simple_differencing<span class="op">=</span><span class="va">False</span>).smooth(aic_tab.loc[<span class="dv">0</span>, <span class="st">"params"</span>])</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Selected: SARIMAX</span><span class="sc">{</span>SARIMAX_ORDER[<span class="st">'order'</span>]<span class="sc">}</span><span class="ss">x</span><span class="sc">{</span>SARIMAX_ORDER[<span class="st">'seasonal_order'</span>]<span class="sc">}</span><span class="ss">   "</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"AIC = </span><span class="sc">{</span>sar<span class="sc">.</span>aic<span class="sc">:.1f}</span><span class="ss">   BIC = </span><span class="sc">{</span>sar<span class="sc">.</span>bic<span class="sc">:.1f}</span><span class="ss">"</span>)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>lb_sar <span class="op">=</span> acorr_ljungbox(sar.resid[<span class="dv">8</span>:], lags<span class="op">=</span>[<span class="dv">7</span>, <span class="dv">14</span>], return_df<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Ljung-Box p-values on SARIMAX residuals: lag 7 = </span><span class="sc">{</span>lb_sar<span class="sc">.</span>lb_pvalue<span class="sc">.</span>iloc[<span class="dv">0</span>]<span class="sc">:.3f}</span><span class="ss">, "</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"lag 14 = </span><span class="sc">{</span>lb_sar<span class="sc">.</span>lb_pvalue<span class="sc">.</span>iloc[<span class="dv">1</span>]<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> sar.plot_diagnostics(figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">7</span>))</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>show(fig, <span class="st">"3_2_sarimax_diagnostics"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Selected: SARIMAX(1, 1, 1)x(1, 0, 1, 7)   AIC = -3091.9   BIC = -2807.2
+Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.120, lag 14 = 0.014</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="upi_prophet_forecasting_files/figure-html/cell-12-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Reading:</strong></p>
+<ul>
+<li><strong>AIC selects SARIMAX(1,1,1)(1,0,1)₇:</strong> one AR and one MA term after a first difference, plus a weekly seasonal AR and MA term.</li>
+<li><strong>The five best models all have <span class="math inline">\(P = Q = 1\)</span>,</strong> so the weekly seasonal terms matter most.</li>
+<li><strong>The diagnostic plots</strong> show standardised residuals without obvious pattern and a near-normal histogram and Q-Q plot (slightly heavy tails). The correlogram is mostly inside the confidence band.</li>
+<li><strong>Ljung–Box finds no significant autocorrelation up to lag 7 (p = 0.12),</strong> but a small amount by lag 14 (p = 0.01). The residuals are close to white noise, and far cleaner than Prophet’s (Section 6).</li>
+<li><strong>So by the course’s in-sample criteria this is a reasonable model.</strong> Section 4 tests whether it also forecasts well.</li>
+</ul>
+</section>
+</section>
+<section id="forecast-evaluation" class="level2">
+<h2 class="anchored" data-anchor-id="forecast-evaluation">4. Forecast evaluation</h2>
+<section id="rolling-origin-cross-validation" class="level3">
+<h3 class="anchored" data-anchor-id="rolling-origin-cross-validation">4.1 Rolling-origin cross-validation</h3>
+<p>A random train/test split would let a model see the future, so we use <strong>rolling-origin evaluation</strong> instead:</p>
+<ul>
+<li>Train on all data up to a cutoff and forecast the next <strong>90 days</strong>.</li>
+<li>Move the cutoff forward <strong>90 days</strong> and repeat.</li>
+<li>The first cutoff is after <strong>2 years</strong> of data, so yearly patterns can be learned.</li>
+</ul>
+<p>This gives <strong>10 folds</strong> whose forecasts cover Jan 2024 – Aug 2026, and <strong>every model uses exactly the same folds</strong>. All errors below are measured on data the model had not seen. That is stricter than scoring a model on the data it was fitted to.</p>
+<p><strong>Metrics:</strong></p>
+<ul>
+<li><strong>MAPE</strong>: mean absolute percentage error; the main metric.</li>
+<li><strong>MAE</strong>: mean absolute error, in million transactions per day.</li>
+<li><strong>RMSE</strong>: like MAE, but penalises large misses more.</li>
+</ul>
+<div id="9ba5ac48" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T09:22:11.401182Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-19T09:22:11.400976Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-19T09:24:44.997828Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T09:24:44.996648Z&quot;}}" data-execution_count="12">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>HORIZON, INITIAL, STEP <span class="op">=</span> <span class="dv">90</span>, <span class="dv">730</span>, <span class="dv">90</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>cutoffs <span class="op">=</span> <span class="bu">list</span>(pd.date_range(df.ds.<span class="bu">min</span>() <span class="op">+</span> pd.Timedelta(days<span class="op">=</span>INITIAL),</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>                             df.ds.<span class="bu">max</span>() <span class="op">-</span> pd.Timedelta(days<span class="op">=</span>HORIZON), freq<span class="op">=</span><span class="ss">f"</span><span class="sc">{</span>STEP<span class="sc">}</span><span class="ss">D"</span>))</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> forecast_fold(model, cutoff):</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Train `model` on data up to `cutoff` and forecast the next HORIZON days."""</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    quiet()</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    train <span class="op">=</span> df[df.ds <span class="op">&lt;=</span> cutoff]</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    test <span class="op">=</span> df[(df.ds <span class="op">&gt;</span> cutoff) <span class="op">&amp;</span> (df.ds <span class="op">&lt;=</span> cutoff <span class="op">+</span> pd.Timedelta(days<span class="op">=</span>HORIZON))]</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> test[[<span class="st">"ds"</span>, <span class="st">"y"</span>, <span class="st">"day_type"</span>]].copy()</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    out[<span class="st">"model"</span>], out[<span class="st">"cutoff"</span>] <span class="op">=</span> model, cutoff</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> model <span class="op">==</span> <span class="st">"M1"</span>:                                        <span class="co"># seasonal naive</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>        last_week <span class="op">=</span> train.set_index(<span class="st">"ds"</span>).y.iloc[<span class="op">-</span><span class="dv">7</span>:]</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>        out[<span class="st">"yhat"</span>] <span class="op">=</span> test.ds.dt.dayofweek.<span class="bu">map</span>({d.dayofweek: v <span class="cf">for</span> d, v <span class="kw">in</span> last_week.items()}).values</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> model <span class="op">==</span> <span class="st">"M2"</span>:                                      <span class="co"># SARIMAX on log volume</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>        Xtr <span class="op">=</span> X_all.loc[train.ds]</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>        Xtr <span class="op">=</span> Xtr.loc[:, Xtr.<span class="bu">sum</span>() <span class="op">!=</span> <span class="dv">0</span>]                     <span class="co"># drop dummies for events not yet seen</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>        res <span class="op">=</span> SARIMAX(np.log(train.y.values), Xtr.values, <span class="op">**</span>SARIMAX_ORDER, trend<span class="op">=</span><span class="st">"c"</span>).fit(disp<span class="op">=</span><span class="va">False</span>, maxiter<span class="op">=</span><span class="dv">500</span>)</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>        out[<span class="st">"yhat"</span>] <span class="op">=</span> np.exp(res.get_forecast(<span class="bu">len</span>(test), exog<span class="op">=</span>X_all.loc[test.ds, Xtr.columns].values).predicted_mean)</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:                                                    <span class="co"># Prophet M3 / M4 / M5</span></span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>        m <span class="op">=</span> make_prophet(model).fit(train[FIT_COLS])</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>        out[<span class="st">"yhat"</span>] <span class="op">=</span> m.predict(test[PRED_COLS]).yhat.values</span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mape(d): <span class="cf">return</span> <span class="dv">100</span> <span class="op">*</span> np.mean(np.<span class="bu">abs</span>(d.y <span class="op">-</span> d.yhat) <span class="op">/</span> d.y)</span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mae(d):  <span class="cf">return</span> np.mean(np.<span class="bu">abs</span>(d.y <span class="op">-</span> d.yhat))</span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> rmse(d): <span class="cf">return</span> np.sqrt(np.mean((d.y <span class="op">-</span> d.yhat) <span class="op">**</span> <span class="dv">2</span>))</span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a>LABELS <span class="op">=</span> {<span class="st">"M1"</span>: <span class="st">"M1 Seasonal naïve"</span>, <span class="st">"M2"</span>: <span class="st">"M2 SARIMAX"</span>, <span class="st">"M3"</span>: <span class="st">"M3 Prophet base"</span>,</span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a>          <span class="st">"M4"</span>: <span class="st">"M4 Prophet + holidays"</span>, <span class="st">"M5"</span>: <span class="st">"M5 Prophet + holidays + events"</span>}</span>
+<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a>t0 <span class="op">=</span> time.time()</span>
+<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a>cv <span class="op">=</span> pd.concat(Parallel(n_jobs<span class="op">=</span>N_JOBS)(delayed(forecast_fold)(m, c) <span class="cf">for</span> m <span class="kw">in</span> LABELS <span class="cf">for</span> c <span class="kw">in</span> cutoffs),</span>
+<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a>               ignore_index<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a>cv.to_csv(OUT <span class="op">/</span> <span class="st">"cv_forecasts.csv"</span>, index<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span><span class="bu">len</span>(LABELS)<span class="sc">}</span><span class="ss"> models × </span><span class="sc">{</span><span class="bu">len</span>(cutoffs)<span class="sc">}</span><span class="ss"> folds in </span><span class="sc">{</span>time<span class="sc">.</span>time() <span class="op">-</span> t0<span class="sc">:.0f}</span><span class="ss">s"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>5 models × 10 folds in 154s</code></pre>
+</div>
+</div>
+</section>
+<section id="results" class="level3">
+<h3 class="anchored" data-anchor-id="results">4.2 Results</h3>
+<div id="12449e9c" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T09:24:44.999945Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-19T09:24:44.999748Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-19T09:24:45.035852Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T09:24:45.034582Z&quot;}}" data-execution_count="13">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> []</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> m, label <span class="kw">in</span> LABELS.items():</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    g <span class="op">=</span> cv[cv.model <span class="op">==</span> m]</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    rows.append({<span class="st">"model"</span>: label, <span class="st">"MAPE %"</span>: mape(g), <span class="st">"MAE"</span>: mae(g), <span class="st">"RMSE"</span>: rmse(g),</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>                 <span class="op">**</span>{<span class="ss">f"MAPE </span><span class="sc">{</span>t<span class="sc">}</span><span class="ss"> %"</span>: mape(g[g.day_type <span class="op">==</span> t]) <span class="cf">for</span> t <span class="kw">in</span> DAY_TYPES}})</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> pd.DataFrame(rows)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>results.to_csv(OUT <span class="op">/</span> <span class="st">"results_table.csv"</span>, index<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"SARIMAX (selection window): AIC = </span><span class="sc">{</span>sar<span class="sc">.</span>aic<span class="sc">:.1f}</span><span class="ss">, BIC = </span><span class="sc">{</span>sar<span class="sc">.</span>bic<span class="sc">:.1f}</span><span class="ss">"</span>)</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>results.<span class="bu">round</span>(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>SARIMAX (selection window): AIC = -3091.9, BIC = -2807.2</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="13">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">model</th>
+<th data-quarto-table-cell-role="th">MAPE %</th>
+<th data-quarto-table-cell-role="th">MAE</th>
+<th data-quarto-table-cell-role="th">RMSE</th>
+<th data-quarto-table-cell-role="th">MAPE ordinary %</th>
+<th data-quarto-table-cell-role="th">MAPE holiday window %</th>
+<th data-quarto-table-cell-role="th">MAPE sale event %</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>M1 Seasonal naïve</td>
+<td>5.54</td>
+<td>32.48</td>
+<td>41.08</td>
+<td>5.29</td>
+<td>7.88</td>
+<td>11.01</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>M2 SARIMAX</td>
+<td>4.96</td>
+<td>29.45</td>
+<td>37.72</td>
+<td>4.81</td>
+<td>6.83</td>
+<td>5.07</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>M3 Prophet base</td>
+<td>3.32</td>
+<td>19.48</td>
+<td>25.43</td>
+<td>3.11</td>
+<td>5.21</td>
+<td>7.27</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>M4 Prophet + holidays</td>
+<td>3.17</td>
+<td>18.58</td>
+<td>23.92</td>
+<td>3.07</td>
+<td>3.63</td>
+<td>8.57</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>M5 Prophet + holidays + events</td>
+<td>2.45</td>
+<td>14.25</td>
+<td>18.21</td>
+<td>2.37</td>
+<td>3.10</td>
+<td>4.33</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="1ae1ac43" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T09:24:45.037961Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-19T09:24:45.037687Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-19T09:24:45.312253Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T09:24:45.311332Z&quot;}}" data-execution_count="14">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">3.8</span>))</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>w <span class="op">=</span> <span class="fl">0.26</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, (t, col) <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">zip</span>(DAY_TYPES, [C_ACTUAL, C_MODEL, C_ALT])):</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    ax.bar(np.arange(<span class="bu">len</span>(LABELS)) <span class="op">+</span> (i <span class="op">-</span> <span class="dv">1</span>) <span class="op">*</span> w, results[<span class="ss">f"MAPE </span><span class="sc">{</span>t<span class="sc">}</span><span class="ss"> %"</span>], width<span class="op">=</span>w <span class="op">-</span> <span class="fl">0.02</span>, color<span class="op">=</span>col, label<span class="op">=</span>t)</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>ax.set_xticks(<span class="bu">range</span>(<span class="bu">len</span>(LABELS)), [l.replace(<span class="st">" "</span>, <span class="st">"</span><span class="ch">\n</span><span class="st">"</span>, <span class="dv">1</span>) <span class="cf">for</span> l <span class="kw">in</span> LABELS.values()], fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"forecast error, MAPE (%)"</span>)</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>ax.legend(title<span class="op">=</span><span class="st">"day type"</span>)</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Forecast error by model and day type"</span>)</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>show(fig, <span class="st">"4_2_error_by_day_type"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="upi_prophet_forecasting_files/figure-html/cell-15-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Reading:</strong></p>
+<ul>
+<li><strong>Prophet with holidays and events (M5) is the most accurate model:</strong> 2.45% MAPE, less than half the seasonal naïve error (5.54%).</li>
+<li><strong>Holidays help on holiday days.</strong> Adding them (M3 → M4) cuts holiday-window error from 5.21% to 3.63%, about 30% lower, while ordinary days barely change (3.11% → 3.07%).</li>
+<li><strong>Events give the biggest overall gain</strong> (M4 → M5: 3.17% → 2.45%):
+<ul>
+<li>Payday and month-end affect seven days of every month, so ordinary-day error falls from 3.07% to 2.37%.</li>
+<li>The sale’s own days improve from 8.57% to 4.33%. Without the sale in the model, those days are under-forecast by about 8.6% on average.</li>
+</ul></li>
+<li><strong>SARIMAX, given the same calendar information, reaches only 4.96%.</strong> It over-forecasts holiday days by about 5.8% on average, and its errors build up over the 90-day horizon. Prophet’s structure (deterministic trend plus calendar terms) suits long-horizon daily forecasting better.</li>
+<li><strong>A good fit is not a good forecast.</strong> SARIMAX’s in-sample residuals were much closer to white noise than Prophet’s, yet it forecast worse than every Prophet variant. That is why we judge all models on out-of-sample forecasts.</li>
+</ul>
+</section>
+</section>
+<section id="holiday-and-event-effects" class="level2">
+<h2 class="anchored" data-anchor-id="holiday-and-event-effects">5. Holiday and event effects</h2>
+<p>We fit the full model (M5) on all the data and read off its estimated effects. Each holiday or event column in Prophet’s output is the multiplicative effect on that day (0.12 means +12%). We compare these with the true injected effects, which is possible only because the data is synthetic.</p>
+<div id="d82e54a9" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T09:24:45.314230Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-19T09:24:45.314022Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-19T09:24:46.983178Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T09:24:46.952369Z&quot;}}" data-execution_count="15">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>m5 <span class="op">=</span> make_prophet(<span class="st">"M5"</span>).fit(df[FIT_COLS])</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>f5 <span class="op">=</span> m5.predict(df[PRED_COLS])</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> m5.plot_components(f5, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">11</span>))</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>show(fig, <span class="st">"5_components"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="upi_prophet_forecasting_files/figure-html/cell-16-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Reading the components:</strong></p>
+<ul>
+<li><strong>trend:</strong> smooth growth.</li>
+<li><strong>holidays:</strong> spikes and dips at each festival and sale.</li>
+<li><strong>weekly:</strong> Saturday high, Sunday low.</li>
+<li><strong>yearly:</strong> a gentle annual cycle.</li>
+<li><strong>extra_regressors_multiplicative:</strong> the payday and month-end lift.</li>
+</ul>
+<section id="estimated-against-true-effect-for-each-holiday-and-event" class="level3">
+<h3 class="anchored" data-anchor-id="estimated-against-true-effect-for-each-holiday-and-event">5.1 Estimated against true effect for each holiday and event</h3>
+<div id="fd19f59b" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T09:24:46.990294Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-19T09:24:46.989808Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-19T09:24:47.028229Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T09:24:47.026692Z&quot;}}" data-execution_count="16">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>offsets <span class="op">=</span> pd.DataFrame([(r.holiday, k, r.ds <span class="op">+</span> pd.Timedelta(days<span class="op">=</span>k))</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>                        <span class="cf">for</span> _, r <span class="kw">in</span> pd.concat([festivals, sale]).iterrows()</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>                        <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">int</span>(r.lower_window), <span class="bu">int</span>(r.upper_window) <span class="op">+</span> <span class="dv">1</span>)],</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>                       columns<span class="op">=</span>[<span class="st">"name"</span>, <span class="st">"offset"</span>, <span class="st">"date"</span>])</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>offsets <span class="op">=</span> offsets[offsets.date <span class="op">&lt;=</span> df.ds.<span class="bu">max</span>()]</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>f5i, dfi <span class="op">=</span> f5.set_index(<span class="st">"ds"</span>), df.set_index(<span class="st">"ds"</span>)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>offsets[<span class="st">"estimated"</span>] <span class="op">=</span> [f5i.loc[d, n] <span class="cf">for</span> n, d <span class="kw">in</span> <span class="bu">zip</span>(offsets.name, offsets.date)]</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>offsets[<span class="st">"true"</span>] <span class="op">=</span> dfi.loc[offsets.date, <span class="st">"true_effect"</span>].values</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>offsets.loc[offsets.name <span class="op">==</span> <span class="st">"ecommerce_sale"</span>, <span class="st">"offset"</span>] <span class="op">=</span> <span class="dv">0</span>   <span class="co"># sale lengths differ by year; compare its average lift</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>effects <span class="op">=</span> (offsets.groupby(<span class="st">"name"</span>, sort<span class="op">=</span><span class="va">False</span>).agg(days_in_window<span class="op">=</span>(<span class="st">"offset"</span>, <span class="st">"nunique"</span>),</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>                                                   true<span class="op">=</span>(<span class="st">"true"</span>, <span class="st">"mean"</span>), estimated<span class="op">=</span>(<span class="st">"estimated"</span>, <span class="st">"mean"</span>)))</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>effects[[<span class="st">"true"</span>, <span class="st">"estimated"</span>]] <span class="op">*=</span> <span class="dv">100</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>effects[<span class="st">"error (pp)"</span>] <span class="op">=</span> effects.estimated <span class="op">-</span> effects.true</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>calendar <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"true"</span>: [<span class="dv">100</span> <span class="op">*</span> truth[<span class="st">"payday"</span>][<span class="st">"lift"</span>], <span class="dv">100</span> <span class="op">*</span> truth[<span class="st">"monthend"</span>][<span class="st">"lift"</span>]],</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">"estimated"</span>: [<span class="dv">100</span> <span class="op">*</span> f5.loc[df.is_payday <span class="op">==</span> <span class="dv">1</span>, <span class="st">"is_payday"</span>].mean(),</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>                  <span class="dv">100</span> <span class="op">*</span> f5.loc[df.is_monthend <span class="op">==</span> <span class="dv">1</span>, <span class="st">"is_monthend"</span>].mean()]},</span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>    index<span class="op">=</span>[<span class="st">"payday (days 1–5)"</span>, <span class="st">"month-end (last 2 days)"</span>])</span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>calendar[<span class="st">"error (pp)"</span>] <span class="op">=</span> calendar.estimated <span class="op">-</span> calendar.true</span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>effect_table <span class="op">=</span> pd.concat([effects.drop(columns<span class="op">=</span><span class="st">"days_in_window"</span>), calendar])</span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>effect_table.index.name <span class="op">=</span> <span class="st">"effect (mean over its window, %)"</span></span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>effect_table.to_csv(OUT <span class="op">/</span> <span class="st">"effect_recovery.csv"</span>)</span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>effect_table.<span class="bu">round</span>(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="16">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">true</th>
+<th data-quarto-table-cell-role="th">estimated</th>
+<th data-quarto-table-cell-role="th">error (pp)</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">effect (mean over its window, %)</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">diwali</th>
+<td>9.14</td>
+<td>7.75</td>
+<td>-1.39</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">holi</th>
+<td>1.50</td>
+<td>0.87</td>
+<td>-0.63</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">eid_al_fitr</th>
+<td>4.50</td>
+<td>3.91</td>
+<td>-0.59</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">raksha_bandhan</th>
+<td>3.87</td>
+<td>5.39</td>
+<td>1.51</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">republic_day</th>
+<td>-5.00</td>
+<td>-6.86</td>
+<td>-1.86</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">independence_day</th>
+<td>-5.00</td>
+<td>-7.58</td>
+<td>-2.58</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">gandhi_jayanti</th>
+<td>-5.00</td>
+<td>-6.65</td>
+<td>-1.65</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">ecommerce_sale</th>
+<td>10.67</td>
+<td>9.80</td>
+<td>-0.88</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">payday (days 1–5)</th>
+<td>6.00</td>
+<td>6.17</td>
+<td>0.17</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">month-end (last 2 days)</th>
+<td>3.00</td>
+<td>3.25</td>
+<td>0.25</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="ff75ef82" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T09:24:47.030316Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-19T09:24:47.030121Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-19T09:24:48.464804Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T09:24:48.463275Z&quot;}}" data-execution_count="17">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>names <span class="op">=</span> <span class="bu">list</span>(<span class="bu">dict</span>.fromkeys(festivals.holiday))</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">4</span>, figsize<span class="op">=</span>(<span class="dv">13</span>, <span class="dv">6</span>))</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, n <span class="kw">in</span> <span class="bu">zip</span>(axes.flat, names):</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    g <span class="op">=</span> offsets[offsets.name <span class="op">==</span> n].groupby(<span class="st">"offset"</span>)[[<span class="st">"estimated"</span>, <span class="st">"true"</span>]].mean() <span class="op">*</span> <span class="dv">100</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    ax.plot(g.index, g.estimated, color<span class="op">=</span>C_MODEL, marker<span class="op">=</span><span class="st">"o"</span>, ms<span class="op">=</span><span class="dv">4</span>, label<span class="op">=</span><span class="st">"Prophet estimate"</span>)</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    ax.plot(g.index, g.true, color<span class="op">=</span>C_TRUTH, ls<span class="op">=</span><span class="st">"--"</span>, marker<span class="op">=</span><span class="st">"s"</span>, ms<span class="op">=</span><span class="dv">3</span>, label<span class="op">=</span><span class="st">"true (injected)"</span>)</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    ax.axhline(<span class="dv">0</span>, color<span class="op">=</span>C_GRID, lw<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    ax.set_title(n.replace(<span class="st">"_"</span>, <span class="st">" "</span>).title())</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    ax.set_xlabel(<span class="st">"days from the holiday"</span>)</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>    ax.set_ylabel(<span class="st">"</span><span class="sc">% e</span><span class="st">ffect"</span>)</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(g) <span class="op">==</span> <span class="dv">1</span>:</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>        ax.set_xlim(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>        ax.set_xticks([<span class="dv">0</span>])</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> offsets[offsets.name <span class="op">==</span> <span class="st">"ecommerce_sale"</span>]</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axes.flat[<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>ax.bar([<span class="dv">0</span>, <span class="dv">1</span>], [<span class="dv">100</span> <span class="op">*</span> g.true.mean(), <span class="dv">100</span> <span class="op">*</span> g.estimated.mean()], color<span class="op">=</span>[C_TRUTH, C_MODEL], width<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>ax.set_xticks([<span class="dv">0</span>, <span class="dv">1</span>], [<span class="st">"true"</span>, <span class="st">"estimated"</span>])</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"E-commerce sale (avg lift)"</span>)</span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"</span><span class="sc">% e</span><span class="st">ffect"</span>)</span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>axes.flat[<span class="dv">0</span>].legend(fontsize<span class="op">=</span><span class="dv">7</span>, loc<span class="op">=</span><span class="st">"upper left"</span>)</span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>fig.suptitle(<span class="st">"Estimated vs true holiday and event effects (M5)"</span>, fontweight<span class="op">=</span><span class="st">"bold"</span>)</span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>show(fig, <span class="st">"5_1_effect_recovery"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="upi_prophet_forecasting_files/figure-html/cell-18-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Reading:</strong></p>
+<ul>
+<li><strong>Events are recovered almost exactly:</strong>
+<ul>
+<li>payday +6.2% (true +6.0%);</li>
+<li>month-end +3.3% (true +3.0%);</li>
+<li>the sale +9.8% (true +10.7% on average). The sale’s real lift varies between 8% and 12% from year to year, while the model fits one average.</li>
+</ul></li>
+<li><strong>Diwali’s shape is recovered:</strong> the ramp over ten days, the peak on Dhanteras and Diwali eve, and the dip after. <strong>Its size is under-estimated:</strong> a 7.7% window average against a true 9.1%, and a peak of about 17% against 20%.
+<ul>
+<li>Each of its 14 daily coefficients is estimated from only four Diwalis.</li>
+<li>Part of the festive lift is absorbed by the yearly seasonality, since Diwali always falls in Oct–Nov.</li>
+</ul></li>
+<li><strong>Holi, Eid al-Fitr and Raksha Bandhan are within about 1.5 pp.</strong> Holi’s −10% on the day itself is caught almost exactly.</li>
+<li><strong>Single-day national holidays come out about 2 pp more negative than −5%.</strong> Each occurs only four or five times, so their estimates are the noisiest.</li>
+</ul>
+<p><strong>Overall:</strong> the bigger and more frequent the effect, the more precisely Prophet recovers it.</p>
+</section>
+</section>
+<section id="residual-diagnostics" class="level2">
+<h2 class="anchored" data-anchor-id="residual-diagnostics">6. Residual diagnostics</h2>
+<p>A good model leaves residuals that look like random noise. We check two things on the in-sample residuals of M5 (log scale):</p>
+<ul>
+<li><strong>Ljung–Box:</strong> are the residuals autocorrelated? A small p-value means yes.</li>
+<li><strong>ARCH-LM:</strong> does the size of the residuals vary over time (heteroskedasticity)? A small p-value means yes.</li>
+</ul>
+<div id="8e23014d" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T09:24:48.467148Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-19T09:24:48.466903Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-19T09:24:48.837826Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T09:24:48.836666Z&quot;}}" data-execution_count="18">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> np.log(df.y.values) <span class="op">-</span> np.log(f5.yhat.values)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>lb <span class="op">=</span> acorr_ljungbox(res, lags<span class="op">=</span>[<span class="dv">7</span>, <span class="dv">14</span>], return_df<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>lm, lm_p, _, _ <span class="op">=</span> het_arch(res, nlags<span class="op">=</span><span class="dv">7</span>)</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Lag-1 autocorrelation: </span><span class="sc">{</span>acf(res, nlags<span class="op">=</span><span class="dv">1</span>)[<span class="dv">1</span>]<span class="sc">:.2f}</span><span class="ss">   (the generator's noise has 0.3)"</span>)</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Ljung-Box p-values: lag 7 = </span><span class="sc">{</span>lb<span class="sc">.</span>lb_pvalue<span class="sc">.</span>iloc[<span class="dv">0</span>]<span class="sc">:.2g}</span><span class="ss">, lag 14 = </span><span class="sc">{</span>lb<span class="sc">.</span>lb_pvalue<span class="sc">.</span>iloc[<span class="dv">1</span>]<span class="sc">:.2g}</span><span class="ss">"</span>)</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"ARCH-LM (7 lags): LM = </span><span class="sc">{</span>lm<span class="sc">:.1f}</span><span class="ss">, p = </span><span class="sc">{</span>lm_p<span class="sc">:.2g}</span><span class="ss">"</span>)</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">3.2</span>))</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>plot_acf(res, lags<span class="op">=</span><span class="dv">28</span>, ax<span class="op">=</span>ax[<span class="dv">0</span>], color<span class="op">=</span>C_ACTUAL, vlines_kwargs<span class="op">=</span>{<span class="st">"colors"</span>: C_ACTUAL})</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_title(<span class="st">"ACF of M5 residuals"</span>)</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].plot(df.ds, pd.Series(<span class="dv">100</span> <span class="op">*</span> res).rolling(<span class="dv">28</span>, center<span class="op">=</span><span class="va">True</span>).std(), color<span class="op">=</span>C_ACTUAL, lw<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> d <span class="kw">in</span> festivals.query(<span class="st">"holiday == 'diwali'"</span>).ds:</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> d <span class="op">&lt;=</span> df.ds.<span class="bu">max</span>():</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>        ax[<span class="dv">1</span>].axvline(d, color<span class="op">=</span>C_MODEL, lw<span class="op">=</span><span class="fl">0.8</span>, ls<span class="op">=</span><span class="st">"--"</span>)</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_title(<span class="st">"Residual volatility (28-day rolling SD, %)"</span>)</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>show(fig, <span class="st">"6_residual_diagnostics"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Lag-1 autocorrelation: 0.38   (the generator's noise has 0.3)
+Ljung-Box p-values: lag 7 = 4.6e-89, lag 14 = 3.1e-105
+ARCH-LM (7 lags): LM = 31.5, p = 5.1e-05</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="upi_prophet_forecasting_files/figure-html/cell-19-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Reading:</strong></p>
+<ul>
+<li><strong>The residuals are autocorrelated.</strong> Lag-1 is 0.38, above the 0.3 built into the noise, and Ljung–Box rejects strongly. Prophet assumes independent errors and does not model this, so it leaves short-term information unused.</li>
+<li><strong>The residual variance is not constant.</strong> ARCH-LM gives p ≈ 5 × 10⁻⁵, and the rolling SD ranges from about 1.5% to 3.8%. The effect is mild, but Prophet’s prediction intervals assume constant variance, so they are too narrow in volatile periods.</li>
+<li><strong>Both point to the same extensions:</strong> model the residuals with ARIMA (a Prophet + ARIMA hybrid), or the variance with GARCH.</li>
+</ul>
+</section>
+<section id="final-forecast-september-2026-february-2027" class="level2">
+<h2 class="anchored" data-anchor-id="final-forecast-september-2026-february-2027">7. Final forecast: September 2026 – February 2027</h2>
+<p>M5 is refitted on all the data and forecasts 180 days ahead:</p>
+<ul>
+<li>Payday and month-end come straight from the calendar.</li>
+<li>Diwali 2026 (8 November) and the 2026 sale (21–25 October) are in the holiday/event table, so both appear in the forecast.</li>
+</ul>
+<div id="85e3aeaa" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T09:24:48.840048Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-19T09:24:48.839823Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-19T09:24:49.297463Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T09:24:49.296209Z&quot;}}" data-execution_count="19">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>future <span class="op">=</span> m5.make_future_dataframe(periods<span class="op">=</span><span class="dv">180</span>)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>future[<span class="st">"is_payday"</span>] <span class="op">=</span> (future.ds.dt.day <span class="op">&lt;=</span> <span class="dv">5</span>).astype(<span class="bu">int</span>)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>future[<span class="st">"is_monthend"</span>] <span class="op">=</span> (future.ds.dt.day <span class="op">&gt;</span> future.ds.dt.days_in_month <span class="op">-</span> <span class="dv">2</span>).astype(<span class="bu">int</span>)</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>fc <span class="op">=</span> m5.predict(future)</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>fc <span class="op">=</span> fc[fc.ds <span class="op">&gt;</span> df.ds.<span class="bu">max</span>()]</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>fc[[<span class="st">"ds"</span>, <span class="st">"yhat"</span>, <span class="st">"yhat_lower"</span>, <span class="st">"yhat_upper"</span>]].to_csv(OUT <span class="op">/</span> <span class="st">"forecast_180_days.csv"</span>, index<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>recent <span class="op">=</span> df[df.ds <span class="op">&gt;=</span> <span class="st">"2025-06-01"</span>]</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">4</span>))</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>ax.plot(recent.ds, recent.y, color<span class="op">=</span>C_ACTUAL, lw<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">"actual (synthetic)"</span>)</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>ax.plot(fc.ds, fc.yhat, color<span class="op">=</span>C_MODEL, lw<span class="op">=</span><span class="fl">1.2</span>, label<span class="op">=</span><span class="st">"M5 forecast"</span>)</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>ax.fill_between(fc.ds, fc.yhat_lower, fc.yhat_upper, color<span class="op">=</span>C_MODEL, alpha<span class="op">=</span><span class="fl">0.18</span>, lw<span class="op">=</span><span class="dv">0</span>, label<span class="op">=</span><span class="st">"90</span><span class="sc">% i</span><span class="st">nterval"</span>)</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> d, txt, side <span class="kw">in</span> [(<span class="st">"2026-10-21"</span>, <span class="st">"sale "</span>, <span class="st">"right"</span>), (<span class="st">"2026-11-08"</span>, <span class="st">" Diwali"</span>, <span class="st">"left"</span>)]:</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>    ax.axvline(pd.Timestamp(d), color<span class="op">=</span>C_TRUTH, ls<span class="op">=</span><span class="st">"--"</span>, lw<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>    ax.text(pd.Timestamp(d), ax.get_ylim()[<span class="dv">1</span>] <span class="op">*</span> <span class="fl">0.97</span>, txt, fontsize<span class="op">=</span><span class="dv">8</span>, va<span class="op">=</span><span class="st">"top"</span>, ha<span class="op">=</span>side)</span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>ax.xaxis.set_major_formatter(mdates.DateFormatter(<span class="st">"%b %Y"</span>))</span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"million txns / day"</span>)</span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>ax.legend(loc<span class="op">=</span><span class="st">"upper left"</span>)</span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"180-day forecast of daily UPI volume (M5)"</span>)</span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>show(fig, <span class="st">"7_forecast"</span>)</span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>monthly_fc <span class="op">=</span> fc.groupby(fc.ds.dt.to_period(<span class="st">"M"</span>)).yhat.agg([<span class="st">"sum"</span>, <span class="st">"size"</span>])</span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>monthly_fc <span class="op">=</span> pd.DataFrame({<span class="st">"forecast (billion txns)"</span>: (monthly_fc[<span class="st">"sum"</span>] <span class="op">/</span> <span class="dv">1000</span>).<span class="bu">round</span>(<span class="dv">2</span>),</span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a>                           <span class="st">"days covered"</span>: monthly_fc[<span class="st">"size"</span>]})</span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a>monthly_fc.index <span class="op">=</span> monthly_fc.index.strftime(<span class="st">"%b %Y"</span>)</span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a>monthly_fc</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="upi_prophet_forecasting_files/figure-html/cell-20-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="19">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">forecast (billion txns)</th>
+<th data-quarto-table-cell-role="th">days covered</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">ds</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Sep 2026</th>
+<td>24.08</td>
+<td>30</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">Oct 2026</th>
+<td>25.74</td>
+<td>31</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Nov 2026</th>
+<td>25.49</td>
+<td>30</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">Dec 2026</th>
+<td>25.99</td>
+<td>31</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Jan 2027</th>
+<td>26.42</td>
+<td>31</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">Feb 2027</th>
+<td>23.51</td>
+<td>27</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p><strong>Reading:</strong></p>
+<ul>
+<li><strong>The forecast continues the trend</strong> at about 24–26 billion transactions a month (August 2026 actual: 24.5 billion). February 2027 is lower only because the forecast ends on 27 February.</li>
+<li><strong>The sale and the Diwali ramp produce the highest forecast days,</strong> close to 1 billion transactions a day in late October and early November.</li>
+<li><strong>The 90% interval is narrow and should be read as optimistic,</strong> given the residual autocorrelation in Section 6.</li>
+</ul>
+<p><em>This forecasts the synthetic series; it illustrates the method and is not a prediction of real UPI volumes.</em></p>
+</section>
+<section id="conclusions" class="level2">
+<h2 class="anchored" data-anchor-id="conclusions">8. Conclusions</h2>
+<section id="answers-to-the-questions" class="level3">
+<h3 class="anchored" data-anchor-id="answers-to-the-questions">Answers to the questions</h3>
+<p><strong>1. Do holidays and events improve the forecast, and where?</strong></p>
+<ul>
+<li>Yes. Adding holidays cut holiday-window error by about 30% (5.21% → 3.63%).</li>
+<li>Adding events (payday, month-end, the sale) cut overall error from 3.17% to 2.45% and halved the error on sale days.</li>
+<li>Each improvement appears exactly on the days the added information describes. Ordinary days change only when payday is added.</li>
+</ul>
+<p><strong>2. Does Prophet recover the true effects?</strong></p>
+<ul>
+<li>Events and short holidays, closely: payday 6.2% against 6.0%, the sale 9.8% against 10.7%, Holi and Eid within about 1 pp.</li>
+<li>Diwali’s shape is right, but its size is under-estimated (7.7% against 9.1%). It is a long festival seen only four times, and it overlaps the yearly cycle.</li>
+</ul>
+<p><strong>3. Prophet vs SARIMAX?</strong></p>
+<ul>
+<li>With the same calendar information, Prophet M5 (2.45%) clearly beat SARIMAX (4.96%), whose errors grow with the forecast horizon.</li>
+<li>SARIMAX had much cleaner in-sample residuals, which shows that a good fit does not guarantee a good forecast.</li>
+</ul>
+</section>
+<section id="limitations" class="level3">
+<h3 class="anchored" data-anchor-id="limitations">Limitations</h3>
+<ul>
+<li><strong>The daily data is synthetic.</strong> The effect sizes are our assumptions, so the results show that Prophet can recover effects of this kind, not the real size of Diwali’s effect on UPI.</li>
+<li><strong>Five festive months deviate from NPCI totals</strong> by up to 6.5%, by design (<code>DATA.md</code> §3.4).</li>
+<li><strong>Only four Diwalis</strong> are in the sample.</li>
+<li><strong>Prophet’s residuals are autocorrelated and slightly heteroskedastic,</strong> so its prediction intervals are too narrow.</li>
+</ul>
+</section>
+<section id="future-scope" class="level3">
+<h3 class="anchored" data-anchor-id="future-scope">Future scope</h3>
+<ul>
+<li>Use real daily payment data if NPCI or RBI publish it.</li>
+<li>Build a Prophet + ARIMA hybrid for the residual autocorrelation, or GARCH for the changing variance.</li>
+<li>Detect unannounced events automatically from forecast residuals.</li>
+<li>Compare with machine-learning models (e.g.&nbsp;LSTM, gradient boosting on calendar features).</li>
+<li>Model P2P and P2M payments together (VAR/VARMAX) to see how festivals shift the mix.</li>
+</ul>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

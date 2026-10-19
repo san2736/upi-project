@@ -1,2 +1,9 @@
 !data/
 !data/**
+
+/.quarto/
+**/*.quarto_ipynb
+.quarto/
+results/
+.ipynb_checkpoints/
+.DS_Store
