@@ -15,17 +15,42 @@ Time Series (ATSA) group project. Forecasts daily UPI transaction volume with Pr
 upi-project/
 ├── README.md
 ├── DATA.md                        data collection and synthetic generation (method + limitations)
+├── upi_prophet_forecasting.ipynb  main analysis notebook (all models, evaluation, conclusions)
+├── requirements.txt               Python packages for the notebook
 ├── scrape_npci.py                 collects real NPCI monthly UPI statistics (Playwright)
+├── collect_data.py, download_npci.py, fetch_npci.py, merge_npci.py
+│                                  NPCI data collection helpers
 ├── generate_synthetic.py          builds the synthetic daily series (v2, seed 1)
-└── data/
-    ├── upi_monthly.csv            real NPCI monthly totals, Jan 2022 – Aug 2026
-    ├── holidays.csv               gazetted national holiday list (single days)
-    ├── synthetic_daily.csv        synthetic daily series + ground-truth effect columns
-    ├── prophet_holidays.csv       known events in Prophet format (hidden sale excluded)
-    ├── truth.json                 every injected parameter and the festive-month deviations
-    ├── synthetic_check.png        visual check of the generated series
-    └── archive/
-        └── synthetic_daily_v1.csv daily series from generator v1, kept for comparison
+├── data/
+│   ├── upi_monthly.csv            real NPCI monthly totals, Jan 2022 – Aug 2026
+│   ├── holidays.csv               gazetted national holiday list (single days)
+│   ├── synthetic_daily.csv        synthetic daily series + ground-truth effect columns
+│   ├── prophet_holidays.csv       known events in Prophet format (hidden sale excluded)
+│   ├── truth.json                 every injected parameter and the festive-month deviations
+│   ├── synthetic_check.png        visual check of the generated series
+│   └── archive/
+│       └── synthetic_daily_v1.csv daily series from generator v1, kept for comparison
+├── _quarto.yml, index.qmd         website configuration and home page
+├── downloads/                     report and slides (PDF)
+└── docs/                          built website, served by GitHub Pages
+```
+
+Website: https://san2736.github.io/upi-project/
+
+## How to run the analysis
+
+```bash
+pip install -r requirements.txt
+jupyter notebook upi_prophet_forecasting.ipynb   # Restart & Run All, about 8 minutes
+```
+
+Outputs (tables and forecasts) are written to `results/`.
+
+## How to rebuild the website
+
+```bash
+quarto render          # builds docs/ from the saved notebook outputs (does not re-run it)
+touch docs/.nojekyll
 ```
 
 ## How to regenerate the data
