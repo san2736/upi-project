@@ -17,8 +17,6 @@ website:
         text: Analysis
       - href: downloads/UPI_Prophet_Report.pdf
         text: Report
-      - href: downloads/UPI_Prophet_Presentation.pdf
-        text: Slides
     right:
       - icon: github
         href: https://github.com/san2736/upi-project

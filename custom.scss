@@ -115,7 +115,7 @@ a:focus-visible, .navbar .nav-link:focus-visible { outline: 3px solid var(--yell
 .link-arrow i { width: 1.4rem; height: 1.4rem; border-radius: 50%; background: var(--teal); color: #fff; display: inline-grid; place-items: center; font-style: normal; font-size: .75rem; }
 .link-arrow:hover { color: var(--teal-dark); }
 
-.actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: .7rem; margin-top: 1rem; }
+.actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: .7rem; margin-top: 1rem; }
 .actions a {
   background: var(--tile); border-radius: 1.4rem; min-height: 8.2rem; padding: .9rem .7rem; text-decoration: none; color: var(--ink);
   display: flex; flex-direction: column; justify-content: space-between; align-items: center; font-weight: 500; transition: background .15s;

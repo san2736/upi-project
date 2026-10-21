@@ -34,7 +34,6 @@ title-block-banner: false
   <div class="actions">
     <a href="upi_prophet_forecasting.html"><span class="ic">&#9638;</span>Analysis</a>
     <a href="downloads/UPI_Prophet_Report.pdf"><span class="ic">&#9776;</span>Report</a>
-    <a href="downloads/UPI_Prophet_Presentation.pdf"><span class="ic">&#9654;</span>Slides</a>
   </div>
 </section>
 
