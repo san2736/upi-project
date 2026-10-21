@@ -25,7 +25,9 @@ website:
 
 format:
   html:
-    theme: flatly
+    theme:
+      - flatly
+      - custom.scss
     toc: true
     code-fold: true
     code-summary: "Show code"
