@@ -419,7 +419,7 @@ window.Quarto = {
 <li>Every month then sums exactly to the NPCI total, except five festive months.</li>
 </ul>
 <p>The five festive months are not forced to match. Forcing them pushed their ordinary days about 5% below trend and hid half of the Diwali effect. We found this in the first version of our generator and fixed it (<code>DATA.md</code> §3.4).</p>
-<div id="cell-004" class="cell" data-execution_count="4">
+<div id="cell-004" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(DATA <span class="op">/</span> <span class="st">"synthetic_daily.csv"</span>, parse_dates<span class="op">=</span>[<span class="st">"ds"</span>])</span>
@@ -448,7 +448,7 @@ window.Quarto = {
 <div class="cell-output cell-output-stdout">
 <pre><code>1704 days, 2022-01-01 to 2026-08-31</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="4">
+<div class="cell-output cell-output-display" data-execution_count="2">
 <div>
 
 
@@ -563,7 +563,7 @@ window.Quarto = {
 <li><strong>Month-end.</strong> The last 2 days of each month: +3%.</li>
 </ul>
 <p>Each day is labelled for the evaluation: <strong>holiday window</strong>, <strong>sale event</strong>, or <strong>ordinary</strong>.</p>
-<div id="cell-006" class="cell" data-execution_count="5">
+<div id="cell-006" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>sale_rows <span class="op">=</span> truth[<span class="st">"hidden_sale_NOT_given_to_prophet"</span>]   <span class="co"># the generator's name for the sale; we now use it as an event</span></span>
@@ -592,7 +592,7 @@ window.Quarto = {
 <span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>DAY_TYPES <span class="op">=</span> [<span class="st">"ordinary"</span>, <span class="st">"holiday window"</span>, <span class="st">"sale event"</span>]</span>
 <span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>sale</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="5">
+<div class="cell-output cell-output-display" data-execution_count="3">
 <div>
 
 
@@ -654,7 +654,7 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="exploratory-data-analysis">2. Exploratory data analysis</h2>
 <section id="the-series" class="level3">
 <h3 class="anchored" data-anchor-id="the-series">2.1 The series</h3>
-<div id="cell-008" class="cell" data-execution_count="6">
+<div id="cell-008" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">6</span>), sharex<span class="op">=</span><span class="va">True</span>, gridspec_kw<span class="op">=</span>{<span class="st">"height_ratios"</span>: [<span class="dv">2</span>, <span class="dv">1</span>]})</span>
@@ -686,7 +686,7 @@ window.Quarto = {
 </section>
 <section id="stl-decomposition-log-scale-weekly-period" class="level3">
 <h3 class="anchored" data-anchor-id="stl-decomposition-log-scale-weekly-period">2.2 STL decomposition (log scale, weekly period)</h3>
-<div id="cell-010" class="cell" data-execution_count="7">
+<div id="cell-010" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>stl <span class="op">=</span> STL(np.log(df.set_index(<span class="st">"ds"</span>).y), period<span class="op">=</span><span class="dv">7</span>, robust<span class="op">=</span><span class="va">True</span>).fit()</span>
@@ -718,7 +718,7 @@ window.Quarto = {
 <li><strong>KPSS test:</strong> the null hypothesis is stationarity.</li>
 </ul>
 <p>A series counts as stationary only when both agree.</p>
-<div id="cell-012" class="cell" data-execution_count="8">
+<div id="cell-012" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> stationarity(x, label):</span>
@@ -730,7 +730,7 @@ window.Quarto = {
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>ly <span class="op">=</span> np.log(df.y.values)</span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>pd.DataFrame([stationarity(ly, <span class="st">"log y"</span>), stationarity(np.diff(ly), <span class="st">"Δ log y (first difference)"</span>)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="8">
+<div class="cell-output cell-output-display" data-execution_count="6">
 <div>
 
 
@@ -765,7 +765,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="cell-013" class="cell" data-execution_count="9">
+<div id="cell-013" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">3.2</span>))</span>
@@ -793,7 +793,7 @@ window.Quarto = {
 <section id="weekday-and-day-of-month-profiles" class="level3">
 <h3 class="anchored" data-anchor-id="weekday-and-day-of-month-profiles">2.4 Weekday and day-of-month profiles</h3>
 <p>Each day is divided by a centred 28-day average (to remove the trend). Holiday and sale days are left out, then the ratios are averaged.</p>
-<div id="cell-015" class="cell" data-execution_count="10">
+<div id="cell-015" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>tmp <span class="op">=</span> df.set_index(<span class="st">"ds"</span>).copy()</span>
@@ -918,7 +918,7 @@ window.Quarto = {
 <li><code>yearly_seasonality = 3</code> is a low-order yearly curve. A flexible yearly curve partly absorbs Diwali, because Diwali always falls in Oct–Nov.</li>
 <li>These two values performed best in a preliminary cross-validated search. The holiday and seasonality prior scales made almost no difference, so they stay at Prophet’s defaults.</li>
 </ul>
-<div id="cell-017" class="cell" data-execution_count="11">
+<div id="cell-017" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>PROPHET_SETTINGS <span class="op">=</span> <span class="bu">dict</span>(growth<span class="op">=</span><span class="st">"linear"</span>, seasonality_mode<span class="op">=</span><span class="st">"multiplicative"</span>, changepoint_prior_scale<span class="op">=</span><span class="fl">0.005</span>,</span>
@@ -955,7 +955,7 @@ window.Quarto = {
 <li>keep the lowest <strong>AIC</strong>.</li>
 </ul>
 <p>The search uses <strong>only the first two years</strong> (2022–2023), so nothing from the evaluation period influences the choice. 36 models are fitted in parallel, which takes a few minutes.</p>
-<div id="cell-019" class="cell" data-execution_count="12">
+<div id="cell-019" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calendar_exog(dates, table<span class="op">=</span>HOLIDAYS_AND_EVENTS, fourier_k<span class="op">=</span><span class="dv">3</span>):</span>
@@ -1005,9 +1005,9 @@ window.Quarto = {
 <span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a>aic_tab[[<span class="st">"(p,q,P,Q)"</span>, <span class="st">"AIC"</span>, <span class="st">"BIC"</span>]].head(<span class="dv">5</span>).<span class="bu">round</span>(<span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>36 models in 155s</code></pre>
+<pre><code>36 models in 149s</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="12">
+<div class="cell-output cell-output-display" data-execution_count="10">
 <div>
 
 
@@ -1057,7 +1057,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="cell-020" class="cell" data-execution_count="13">
+<div id="cell-020" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>p, q, P, Q <span class="op">=</span> aic_tab.loc[<span class="dv">0</span>, <span class="st">"(p,q,P,Q)"</span>]</span>
@@ -1111,7 +1111,7 @@ Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.010, lag 14 = 0.001</code></p
 <li><strong>MAE</strong>: mean absolute error, in million transactions per day.</li>
 <li><strong>RMSE</strong>: like MAE, but penalises large misses more.</li>
 </ul>
-<div id="cell-022" class="cell" data-execution_count="14">
+<div id="cell-022" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>HORIZON, INITIAL, STEP <span class="op">=</span> <span class="dv">90</span>, <span class="dv">730</span>, <span class="dv">90</span></span>
@@ -1173,7 +1173,7 @@ Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.010, lag 14 = 0.001</code></p
 </section>
 <section id="results" class="level3">
 <h3 class="anchored" data-anchor-id="results">4.2 Results</h3>
-<div id="cell-024" class="cell" data-execution_count="15">
+<div id="cell-024" class="cell" data-execution_count="13">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> []</span>
@@ -1191,7 +1191,7 @@ Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.010, lag 14 = 0.001</code></p
 <div class="cell-output cell-output-stdout">
 <pre><code>SARIMAX (selection window): AIC = -3080.1, BIC = -2795.4</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="15">
+<div class="cell-output cell-output-display" data-execution_count="13">
 <div>
 
 
@@ -1287,7 +1287,7 @@ Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.010, lag 14 = 0.001</code></p
 <section id="performance-by-forecast-horizon-and-fold" class="level3">
 <h3 class="anchored" data-anchor-id="performance-by-forecast-horizon-and-fold">4.3 Performance by forecast horizon and fold</h3>
 <p>Overlapping rolling-origin folds are useful for evaluating forecast operations, but their errors are not independent observations. We therefore report pooled errors by lead time and the spread in fold-level MAPE, rather than treating every forecasted day as an independent replicate. WAPE complements MAPE by weighting errors according to transaction volume.</p>
-<div id="cell-026" class="cell" data-execution_count="16">
+<div id="cell-026" class="cell" data-execution_count="14">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Pooled error by forecast lead. lead_days is computed from each fold's forecast origin.</span></span>
@@ -1327,7 +1327,7 @@ Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.010, lag 14 = 0.001</code></p
 <span id="cb19-35"><a href="#cb19-35" aria-hidden="true" tabindex="-1"></a>fold_summary.to_csv(OUT <span class="op">/</span> <span class="st">"fold_summary.csv"</span>)</span>
 <span id="cb19-36"><a href="#cb19-36" aria-hidden="true" tabindex="-1"></a>fold_summary.<span class="bu">round</span>(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="16">
+<div class="cell-output cell-output-display" data-execution_count="14">
 <div>
 
 
@@ -1390,7 +1390,7 @@ Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.010, lag 14 = 0.001</code></p
 </div>
 </div>
 </div>
-<div id="cell-027" class="cell" data-execution_count="17">
+<div id="cell-027" class="cell" data-execution_count="15">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">3.8</span>))</span>
@@ -1428,7 +1428,7 @@ Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.010, lag 14 = 0.001</code></p
 <section id="holiday-and-event-effects" class="level2">
 <h2 class="anchored" data-anchor-id="holiday-and-event-effects">5. Holiday and event effects</h2>
 <p>We fit the full model (M5) on all the data and read off its estimated effects. Each holiday or event column in Prophet’s output is the multiplicative effect on that day (0.12 means +12%). We compare these with the true injected effects, which is possible only because the data is synthetic.</p>
-<div id="cell-029" class="cell" data-execution_count="18">
+<div id="cell-029" class="cell" data-execution_count="16">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>m5 <span class="op">=</span> make_prophet(<span class="st">"M5"</span>).fit(df[FIT_COLS])</span>
@@ -1454,7 +1454,7 @@ Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.010, lag 14 = 0.001</code></p
 </ul>
 <section id="estimated-against-true-effect-for-each-holiday-and-event" class="level3">
 <h3 class="anchored" data-anchor-id="estimated-against-true-effect-for-each-holiday-and-event">5.1 Estimated against true effect for each holiday and event</h3>
-<div id="cell-031" class="cell" data-execution_count="19">
+<div id="cell-031" class="cell" data-execution_count="17">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>offsets <span class="op">=</span> pd.DataFrame([(r.holiday, k, r.ds <span class="op">+</span> pd.Timedelta(days<span class="op">=</span>k))</span>
@@ -1482,7 +1482,7 @@ Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.010, lag 14 = 0.001</code></p
 <span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>effect_table.to_csv(OUT <span class="op">/</span> <span class="st">"effect_recovery.csv"</span>)</span>
 <span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>effect_table.<span class="bu">round</span>(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="19">
+<div class="cell-output cell-output-display" data-execution_count="17">
 <div>
 
 
@@ -1568,7 +1568,7 @@ Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.010, lag 14 = 0.001</code></p
 </div>
 </div>
 </div>
-<div id="cell-032" class="cell" data-execution_count="20">
+<div id="cell-032" class="cell" data-execution_count="18">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>names <span class="op">=</span> <span class="bu">list</span>(<span class="bu">dict</span>.fromkeys(festivals.holiday))</span>
@@ -1629,7 +1629,7 @@ Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.010, lag 14 = 0.001</code></p
 <li><strong>Ljung–Box:</strong> are the residuals autocorrelated? A small p-value means yes.</li>
 <li><strong>ARCH-LM:</strong> does the size of the residuals vary over time (heteroskedasticity)? A small p-value means yes.</li>
 </ul>
-<div id="cell-034" class="cell" data-execution_count="21">
+<div id="cell-034" class="cell" data-execution_count="19">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> np.log(df.y.values) <span class="op">-</span> np.log(f5.yhat.values)</span>
@@ -1675,7 +1675,7 @@ ARCH-LM (7 lags): LM = 29.4, p = 0.00012</code></pre>
 <li>Payday and month-end come straight from the calendar.</li>
 <li>Diwali 2026 (8 November) and the 2026 sale (21–25 October) are in the holiday/event table, so both appear in the forecast.</li>
 </ul>
-<div id="cell-036" class="cell" data-execution_count="22">
+<div id="cell-036" class="cell" data-execution_count="20">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>future <span class="op">=</span> m5.make_future_dataframe(periods<span class="op">=</span><span class="dv">180</span>)</span>
@@ -1712,7 +1712,7 @@ ARCH-LM (7 lags): LM = 29.4, p = 0.00012</code></pre>
 </figure>
 </div>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="22">
+<div class="cell-output cell-output-display" data-execution_count="20">
 <div>
 
 
