@@ -173,6 +173,10 @@ window.Quarto = {
     <a class="nav-link" href="./downloads/UPI_Prophet_Report.pdf"> 
 <span class="menu-text">Report</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./downloads/UPI_Prophet_Forecasting.pdf"> 
+<span class="menu-text">Code</span></a>
+  </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item compact">
@@ -196,7 +200,7 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">0. Overview</a></li>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a></li>
   <li><a href="#data" id="toc-data" class="nav-link" data-scroll-target="#data">1. Data</a>
   <ul class="collapse">
   <li><a href="#setup" id="toc-setup" class="nav-link" data-scroll-target="#setup">1.1 Setup</a></li>
@@ -286,9 +290,9 @@ window.Quarto = {
 </tr>
 </tbody>
 </table>
-<p>Date: ___</p>
+<p>Date: 22.10.206</p>
 <section id="overview" class="level2">
-<h2 class="anchored" data-anchor-id="overview">0. Overview</h2>
+<h2 class="anchored" data-anchor-id="overview">Overview</h2>
 <p><strong>Problem.</strong> UPI processes hundreds of millions of payments a day, and daily volume is not smooth. It rises on weekends and paydays, ramps up before Diwali, dips on national holidays and jumps during e-commerce sales. Daily forecasts are needed for server capacity, fraud-monitoring baselines and settlement liquidity, and a forecast that ignores the calendar is wrong on exactly the busiest days.</p>
 <p><strong>What we do.</strong> We forecast daily UPI transaction volume with <strong>Prophet</strong> and test how much the forecast improves when Prophet is told about <strong>holidays</strong> (Diwali, Holi, Eid, Raksha Bandhan, national holidays) and <strong>events</strong> (an e-commerce sale, payday and month-end). We compare against a seasonal naïve baseline and <strong>SARIMAX</strong>.</p>
 <p><strong>Data.</strong> NPCI publishes UPI volume <strong>monthly only</strong>, so we built a <strong>synthetic daily series</strong> anchored to the real NPCI monthly totals (Jan 2022 – Aug 2026), with holiday and event effects of known size. Because the true effects are known, we can also check whether Prophet <strong>recovers</strong> them. <em>All daily values are synthetic; only the monthly totals are real.</em> Results therefore evaluate the modelling approach under our stated simulation assumptions, not the real causal effect of festivals on UPI. Details are in <code>DATA.md</code>.</p>

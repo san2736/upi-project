@@ -4,14 +4,14 @@
     "href": "upi_prophet_forecasting.html",
     "title": "Prophet Model Implementation for Digital Payment Volume Forecasting with Holiday and Event Effects",
     "section": "",
-    "text": "Applied Time Series Analysis (ATSA): Group 2\nDate: ___"
+    "text": "Applied Time Series Analysis (ATSA): Group 2\nDate: 22.10.206"
   },
   {
     "objectID": "upi_prophet_forecasting.html#overview",
     "href": "upi_prophet_forecasting.html#overview",
     "title": "Prophet Model Implementation for Digital Payment Volume Forecasting with Holiday and Event Effects",
-    "section": "0. Overview",
-    "text": "0. Overview\nProblem. UPI processes hundreds of millions of payments a day, and daily volume is not smooth. It rises on weekends and paydays, ramps up before Diwali, dips on national holidays and jumps during e-commerce sales. Daily forecasts are needed for server capacity, fraud-monitoring baselines and settlement liquidity, and a forecast that ignores the calendar is wrong on exactly the busiest days.\nWhat we do. We forecast daily UPI transaction volume with Prophet and test how much the forecast improves when Prophet is told about holidays (Diwali, Holi, Eid, Raksha Bandhan, national holidays) and events (an e-commerce sale, payday and month-end). We compare against a seasonal naïve baseline and SARIMAX.\nData. NPCI publishes UPI volume monthly only, so we built a synthetic daily series anchored to the real NPCI monthly totals (Jan 2022 – Aug 2026), with holiday and event effects of known size. Because the true effects are known, we can also check whether Prophet recovers them. All daily values are synthetic; only the monthly totals are real. Results therefore evaluate the modelling approach under our stated simulation assumptions, not the real causal effect of festivals on UPI. Details are in DATA.md.\nQuestions\n\nDoes adding holidays and events to Prophet improve forecast accuracy, and on which days?\nDoes Prophet recover the true size of each holiday and event effect?\nHow does Prophet compare with SARIMAX?\n\n\n\n\nSection\nContent\n\n\n\n\n1\nData\n\n\n2\nExploratory data analysis\n\n\n3\nModels\n\n\n4\nForecast evaluation\n\n\n5\nHoliday and event effects\n\n\n6\nResidual diagnostics\n\n\n7\nFinal forecast\n\n\n8\nConclusions"
+    "section": "Overview",
+    "text": "Overview\nProblem. UPI processes hundreds of millions of payments a day, and daily volume is not smooth. It rises on weekends and paydays, ramps up before Diwali, dips on national holidays and jumps during e-commerce sales. Daily forecasts are needed for server capacity, fraud-monitoring baselines and settlement liquidity, and a forecast that ignores the calendar is wrong on exactly the busiest days.\nWhat we do. We forecast daily UPI transaction volume with Prophet and test how much the forecast improves when Prophet is told about holidays (Diwali, Holi, Eid, Raksha Bandhan, national holidays) and events (an e-commerce sale, payday and month-end). We compare against a seasonal naïve baseline and SARIMAX.\nData. NPCI publishes UPI volume monthly only, so we built a synthetic daily series anchored to the real NPCI monthly totals (Jan 2022 – Aug 2026), with holiday and event effects of known size. Because the true effects are known, we can also check whether Prophet recovers them. All daily values are synthetic; only the monthly totals are real. Results therefore evaluate the modelling approach under our stated simulation assumptions, not the real causal effect of festivals on UPI. Details are in DATA.md.\nQuestions\n\nDoes adding holidays and events to Prophet improve forecast accuracy, and on which days?\nDoes Prophet recover the true size of each holiday and event effect?\nHow does Prophet compare with SARIMAX?\n\n\n\n\nSection\nContent\n\n\n\n\n1\nData\n\n\n2\nExploratory data analysis\n\n\n3\nModels\n\n\n4\nForecast evaluation\n\n\n5\nHoliday and event effects\n\n\n6\nResidual diagnostics\n\n\n7\nFinal forecast\n\n\n8\nConclusions"
   },
   {
     "objectID": "upi_prophet_forecasting.html#data",
@@ -79,22 +79,8 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "Prophet Model Implementation for Digital Payment Volume Forecasting with Holiday and Event Effects",
+    "title": "UPI Forecasting with Prophet",
     "section": "",
-    "text": "We forecast daily UPI transaction volume with Prophet and test how much holidays and events improve the forecast."
-  },
-  {
-    "objectID": "index.html#key-results",
-    "href": "index.html#key-results",
-    "title": "Prophet Model Implementation for Digital Payment Volume Forecasting with Holiday and Event Effects",
-    "section": "Key results",
-    "text": "Key results\nOut-of-sample errors from 10 rolling-origin folds with a 90-day horizon.\n\n\n\n\n\n\n\n\n\nModel\nMAPE\nWAPE\nMAPE, 7-day horizon\n\n\n\n\nM1 Seasonal naive\n5.54%\n5.56%\n4.43%\n\n\nM2 SARIMAX\n4.97%\n5.05%\n3.01%\n\n\nM3 Prophet base\n3.32%\n3.33%\n3.36%\n\n\nM4 Prophet + holidays\n3.17%\n3.18%\n2.90%\n\n\nM5 Prophet + holidays + events\n2.45%\n2.44%\n2.15%\n\n\n\n\nAdding holidays cut holiday-window error by about 30% (5.21% to 3.63%).\nAdding events halved sale-day error (8.57% to 4.33%).\nSARIMAX is competitive at short horizons but its error grows fastest with the horizon.\nProphet recovers the payday effect almost exactly: 6.2% estimated against 6.0% true."
-  },
-  {
-    "objectID": "index.html#explore",
-    "href": "index.html#explore",
-    "title": "Prophet Model Implementation for Digital Payment Volume Forecasting with Holiday and Event Effects",
-    "section": "Explore",
-    "text": "Explore\n\nAnalysis: the full notebook with code, charts and explanations\nReport (PDF)\nSlides (PDF)\nCode and data on GitHub"
+    "text": "Prophet Model Implementation for Digital Payment Volume Forecasting with Holiday and Event Effects\n  We forecast daily UPI transaction volume with Prophet and test how much holidays and events improve the forecast. NPCI publishes UPI data monthly only, so the daily series is synthetic, built from real NPCI monthly totals (Jan 2022 to Aug 2026) with effects of known size.\n  ATSA Group 2: Rohan Dedhia, Duncan D'lima, Sanaz Katpitia\n\n\n\n  Final forecast Sep 2026 to Feb 2027\n  \n    \n      \n        Prophet M5UPI\n        24 to 26 bn\n        transactions per monthSep 26 to Feb 27\n      \n    \n    \n      Aug 2026 actual\n      24.5 bn\n      Peak days: 2026 sale (21 to 25 Oct) and Diwali (8 Nov), near 1 bn a day.\n      View analysis ↗\n    \n  \n  \n    ☰Report PDF\n    &lt;/&gt;Code PDF\n  \n\n\n\n  Monthly volume\n  Month56 months\n  \n    \n    \n    \n  \n  Jan 2022: 4.6 bnAug 2026: 24.5 bn\n\n\n\n  ✓Best\n  Prophet + holidays + events\n  2.45%-56%\n  Forecast error (MAPE), 10 rolling folds\n\n\n\n  ≡Baseline\n  Seasonal naive\n  5.54%\n  Same weekday last week. SARIMAX: 4.97%\n\n\n\n  ▬Error by model MAPE %, lower is better\n  \n    5.54M1 Seasonal naive\n    4.97M2 SARIMAX\n    3.32M3 Prophet base\n    3.17M4 + holidays\n    2.45M5 + holidays + events\n  \n\n\n\n  True vs estimated\n  Effect size recovered by Prophet\n  Payday 6.17% / 6.00%\n  Month-end 3.25% / 3.00%\n  E-commerce sale 9.80% / 10.67%\n  Diwali 7.75% / 9.14%\n\n\n\n  Key findings\n  Question 1🎉Holidays and events helpOn the days they describe-30%holiday-day error\n  Question 2🎯Effects recoveredDiwali is under-estimated17%peak vs 20% true\n  Question 3⚖Prophet beats SARIMAXOut of sample, same calendar inputs2.45%vs 4.97%\n\n\n\n  Code and data\n  Notebook, synthetic data, generator and ground truth, all on GitHub.\n  &lt;/&gt;\n  Open repository"
   }
 ]

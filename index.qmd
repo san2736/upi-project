@@ -1,35 +1,100 @@
 ---
-title: "Prophet Model Implementation for Digital Payment Volume Forecasting with Holiday and Event Effects"
-subtitle: "ATSA Group 2: Rohan Dedhia, Duncan D'lima, Sanaz Katpitia"
+pagetitle: "UPI Forecasting with Prophet"
 toc: false
+page-layout: full
+title-block-banner: false
 ---
 
-We forecast daily UPI transaction volume with Prophet and test how much holidays and events improve the forecast.
+```{=html}
+<div class="dash">
 
-::: {.callout-note}
-NPCI publishes UPI data monthly only. The daily series here is **synthetic**, built from real NPCI monthly totals (Jan 2022 to Aug 2026) with holiday and event effects of known size. The results evaluate the modelling approach under these simulation assumptions; they are not validated real-world UPI forecast accuracy.
-:::
+<section class="tilebox c-intro">
+  <div class="intro-title">Prophet Model Implementation for Digital Payment Volume Forecasting with Holiday and Event Effects</div>
+  <p>We forecast daily UPI transaction volume with Prophet and test how much holidays and events improve the forecast. NPCI publishes UPI data monthly only, so the daily series is <b>synthetic</b>, built from real NPCI monthly totals (Jan 2022 to Aug 2026) with effects of known size.</p>
+  <div class="who">ATSA Group 2: Rohan Dedhia, Duncan D'lima, Sanaz Katpitia</div>
+</section>
 
-## Key results
+<section class="tilebox c-hero">
+  <h2 class="t-title">Final forecast <span class="muted" style="font-weight:400">Sep 2026 to Feb 2027</span></h2>
+  <div class="hero-grid">
+    <div>
+      <div class="cardstack"><div class="fcard">
+        <div class="top"><span>Prophet M5</span><b>UPI</b></div>
+        <div class="num">24 to 26 bn</div>
+        <div class="bot"><span>transactions per month</span><span>Sep 26 to Feb 27</span></div>
+      </div></div>
+    </div>
+    <div>
+      <div class="bal-label">Aug 2026 actual</div>
+      <div class="bal-num">24.5 bn</div>
+      <div class="muted" style="margin-top:.3rem">Peak days: 2026 sale (21 to 25 Oct) and Diwali (8 Nov), near 1 bn a day.</div>
+      <a class="link-arrow" href="upi_prophet_forecasting.html">View analysis <i>&#8599;</i></a>
+    </div>
+  </div>
+  <div class="actions">
+    <a href="downloads/UPI_Prophet_Report.pdf"><span class="ic">&#9776;</span>Report PDF</a>
+    <a href="downloads/UPI_Prophet_Forecasting.pdf"><span class="ic">&lt;/&gt;</span>Code PDF</a>
+  </div>
+</section>
 
-Out-of-sample errors from 10 rolling-origin folds with a 90-day horizon.
+<section class="tilebox c-profit">
+  <h2 class="t-title">Monthly volume</h2>
+  <div class="chips" aria-hidden="true"><span>Month</span><span class="on">56 months</span></div>
+  <svg class="spark" viewBox="0 0 300 100" role="img" aria-label="NPCI monthly UPI volume rose from 4.6 billion in Jan 2022 to 24.5 billion in Aug 2026">
+    <defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a9a82" stop-opacity=".35"/><stop offset="1" stop-color="#4a9a82" stop-opacity="0"/></linearGradient></defs>
+    <path d="M0.0,91.7 C0.9,91.7 3.6,92.5 5.5,92.0 C7.3,91.5 9.1,89.3 10.9,88.7 C12.7,88.0 14.5,88.3 16.4,88.0 C18.2,87.6 20.0,86.7 21.8,86.6 C23.6,86.4 25.5,87.1 27.3,86.9 C29.1,86.7 30.9,85.8 32.7,85.3 C34.5,84.8 36.4,84.5 38.2,84.2 C40.0,83.9 41.8,83.9 43.6,83.4 C45.5,83.0 47.3,81.8 49.1,81.4 C50.9,81.1 52.7,81.8 54.5,81.4 C56.4,81.1 58.2,79.9 60.0,79.4 C61.8,79.0 63.6,78.5 65.5,78.7 C67.3,78.8 69.1,81.0 70.9,80.6 C72.7,80.2 74.5,77.0 76.4,76.2 C78.2,75.3 80.0,75.8 81.8,75.4 C83.6,74.9 85.5,73.7 87.3,73.4 C89.1,73.1 90.9,74.1 92.7,73.7 C94.5,73.4 96.4,72.1 98.2,71.3 C100.0,70.5 101.8,69.3 103.6,69.0 C105.5,68.6 107.3,69.6 109.1,69.1 C110.9,68.6 112.7,66.3 114.5,65.8 C116.4,65.4 118.2,66.9 120.0,66.5 C121.8,66.1 123.6,64.1 125.5,63.5 C127.3,62.9 129.1,62.9 130.9,62.8 C132.7,62.8 134.5,64.0 136.4,63.2 C138.2,62.4 140.0,58.9 141.8,58.1 C143.6,57.3 145.5,59.0 147.3,58.6 C149.1,58.2 150.9,56.2 152.7,55.8 C154.5,55.5 156.4,56.7 158.2,56.4 C160.0,56.2 161.8,55.0 163.6,54.3 C165.5,53.6 167.3,52.7 169.1,52.3 C170.9,51.9 172.7,53.0 174.5,52.0 C176.4,51.0 178.2,46.4 180.0,46.1 C181.8,45.9 183.6,50.4 185.5,50.3 C187.3,50.2 189.1,46.5 190.9,45.6 C192.7,44.6 194.5,44.2 196.4,44.6 C198.2,45.0 200.0,48.8 201.8,48.0 C203.6,47.1 205.5,40.7 207.3,39.6 C209.1,38.5 210.9,41.4 212.7,41.2 C214.5,40.9 216.4,38.5 218.2,38.2 C220.0,37.9 221.8,39.8 223.6,39.3 C225.5,38.8 227.3,36.2 229.1,35.2 C230.9,34.2 232.7,33.2 234.5,33.1 C236.4,33.0 238.2,35.0 240.0,34.5 C241.8,34.1 243.6,31.0 245.5,30.5 C247.3,30.0 249.1,32.0 250.9,31.4 C252.7,30.8 254.5,27.7 256.4,26.9 C258.2,26.1 260.0,25.9 261.8,26.7 C263.6,27.5 265.5,32.2 267.3,31.7 C269.1,31.1 270.9,24.3 272.7,23.1 C274.5,21.9 276.4,24.6 278.2,24.2 C280.0,23.9 281.8,21.2 283.6,21.0 C285.5,20.7 287.3,23.1 289.1,22.8 C290.9,22.5 292.7,20.4 294.5,19.2 C296.4,18.1 299.1,16.5 300.0,16.0 L300,100 L0,100 Z" fill="url(#sg)"/>
+    <path d="M0.0,91.7 C0.9,91.7 3.6,92.5 5.5,92.0 C7.3,91.5 9.1,89.3 10.9,88.7 C12.7,88.0 14.5,88.3 16.4,88.0 C18.2,87.6 20.0,86.7 21.8,86.6 C23.6,86.4 25.5,87.1 27.3,86.9 C29.1,86.7 30.9,85.8 32.7,85.3 C34.5,84.8 36.4,84.5 38.2,84.2 C40.0,83.9 41.8,83.9 43.6,83.4 C45.5,83.0 47.3,81.8 49.1,81.4 C50.9,81.1 52.7,81.8 54.5,81.4 C56.4,81.1 58.2,79.9 60.0,79.4 C61.8,79.0 63.6,78.5 65.5,78.7 C67.3,78.8 69.1,81.0 70.9,80.6 C72.7,80.2 74.5,77.0 76.4,76.2 C78.2,75.3 80.0,75.8 81.8,75.4 C83.6,74.9 85.5,73.7 87.3,73.4 C89.1,73.1 90.9,74.1 92.7,73.7 C94.5,73.4 96.4,72.1 98.2,71.3 C100.0,70.5 101.8,69.3 103.6,69.0 C105.5,68.6 107.3,69.6 109.1,69.1 C110.9,68.6 112.7,66.3 114.5,65.8 C116.4,65.4 118.2,66.9 120.0,66.5 C121.8,66.1 123.6,64.1 125.5,63.5 C127.3,62.9 129.1,62.9 130.9,62.8 C132.7,62.8 134.5,64.0 136.4,63.2 C138.2,62.4 140.0,58.9 141.8,58.1 C143.6,57.3 145.5,59.0 147.3,58.6 C149.1,58.2 150.9,56.2 152.7,55.8 C154.5,55.5 156.4,56.7 158.2,56.4 C160.0,56.2 161.8,55.0 163.6,54.3 C165.5,53.6 167.3,52.7 169.1,52.3 C170.9,51.9 172.7,53.0 174.5,52.0 C176.4,51.0 178.2,46.4 180.0,46.1 C181.8,45.9 183.6,50.4 185.5,50.3 C187.3,50.2 189.1,46.5 190.9,45.6 C192.7,44.6 194.5,44.2 196.4,44.6 C198.2,45.0 200.0,48.8 201.8,48.0 C203.6,47.1 205.5,40.7 207.3,39.6 C209.1,38.5 210.9,41.4 212.7,41.2 C214.5,40.9 216.4,38.5 218.2,38.2 C220.0,37.9 221.8,39.8 223.6,39.3 C225.5,38.8 227.3,36.2 229.1,35.2 C230.9,34.2 232.7,33.2 234.5,33.1 C236.4,33.0 238.2,35.0 240.0,34.5 C241.8,34.1 243.6,31.0 245.5,30.5 C247.3,30.0 249.1,32.0 250.9,31.4 C252.7,30.8 254.5,27.7 256.4,26.9 C258.2,26.1 260.0,25.9 261.8,26.7 C263.6,27.5 265.5,32.2 267.3,31.7 C269.1,31.1 270.9,24.3 272.7,23.1 C274.5,21.9 276.4,24.6 278.2,24.2 C280.0,23.9 281.8,21.2 283.6,21.0 C285.5,20.7 287.3,23.1 289.1,22.8 C290.9,22.5 292.7,20.4 294.5,19.2 C296.4,18.1 299.1,16.5 300.0,16.0" fill="none" stroke="#2f7d67" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+  <div class="axis"><span>Jan 2022: 4.6 bn</span><span>Aug 2026: 24.5 bn</span></div>
+</section>
 
-| Model | MAPE | WAPE | MAPE, 7-day horizon |
-|---|---|---|---|
-| M1 Seasonal naive | 5.54% | 5.56% | 4.43% |
-| M2 SARIMAX | 4.97% | 5.05% | 3.01% |
-| M3 Prophet base | 3.32% | 3.33% | 3.36% |
-| M4 Prophet + holidays | 3.17% | 3.18% | 2.90% |
-| **M5 Prophet + holidays + events** | **2.45%** | **2.44%** | **2.15%** |
+<section class="tilebox c-inc">
+  <h2 class="t-title"><span class="badge-ic">&#10003;</span>Best</h2>
+  <div class="muted" style="margin-top:.6rem">Prophet + holidays + events</div>
+  <div class="big" style="margin-top:1.4rem">2.45%<span class="pill up">-56%</span></div>
+  <div class="muted foot">Forecast error (MAPE), 10 rolling folds</div>
+</section>
 
-- Adding holidays cut holiday-window error by about 30% (5.21% to 3.63%).
-- Adding events halved sale-day error (8.57% to 4.33%).
-- SARIMAX is competitive at short horizons but its error grows fastest with the horizon.
-- Prophet recovers the payday effect almost exactly: 6.2% estimated against 6.0% true.
+<section class="tilebox c-exp">
+  <h2 class="t-title"><span class="badge-ic">&#8801;</span>Baseline</h2>
+  <div class="muted" style="margin-top:.6rem">Seasonal naive</div>
+  <div class="big" style="margin-top:1.4rem">5.54%</div>
+  <div class="muted foot">Same weekday last week. SARIMAX: 4.97%</div>
+</section>
 
-## Explore
+<section class="tilebox c-bars">
+  <h2 class="t-title"><span class="badge-ic">&#9644;</span>Error by model <span class="muted" style="margin-left:auto;font-weight:400">MAPE %, lower is better</span></h2>
+  <div class="bars" role="img" aria-label="MAPE: seasonal naive 5.54, SARIMAX 4.97, Prophet base 3.32, Prophet plus holidays 3.17, Prophet plus holidays and events 2.45">
+    <div class="col"><div class="val">5.54</div><div class="track"><div class="fill" style="height:92%"></div></div><div class="lab">M1 Seasonal naive</div></div>
+    <div class="col"><div class="val">4.97</div><div class="track"><div class="fill" style="height:83%"></div></div><div class="lab">M2 SARIMAX</div></div>
+    <div class="col"><div class="val">3.32</div><div class="track"><div class="fill" style="height:55%"></div></div><div class="lab">M3 Prophet base</div></div>
+    <div class="col"><div class="val">3.17</div><div class="track"><div class="fill" style="height:53%"></div></div><div class="lab">M4 + holidays</div></div>
+    <div class="col best"><div class="val">2.45</div><div class="track"><div class="fill" style="height:41%"></div></div><div class="lab">M5 + holidays + events</div></div>
+  </div>
+</section>
 
-- [**Analysis**](upi_prophet_forecasting.ipynb): the full notebook with code, charts and explanations
-- [**Report**](downloads/UPI_Prophet_Report.pdf) (PDF)
-- [**Slides**](downloads/UPI_Prophet_Presentation.pdf) (PDF)
-- [**Code and data**](https://github.com/san2736/upi-project) on GitHub
+<section class="tilebox c-plan">
+  <h2 class="t-title">True vs estimated</h2>
+  <div class="muted">Effect size recovered by Prophet</div>
+  <div class="plan-item"><div class="row1">Payday <small>6.17% / 6.00%</small></div><div class="meter"><i style="width:100%"></i></div></div>
+  <div class="plan-item"><div class="row1">Month-end <small>3.25% / 3.00%</small></div><div class="meter"><i style="width:100%"></i></div></div>
+  <div class="plan-item"><div class="row1">E-commerce sale <small>9.80% / 10.67%</small></div><div class="meter"><i style="width:92%"></i></div></div>
+  <div class="plan-item"><div class="row1">Diwali <small>7.75% / 9.14%</small></div><div class="meter"><i style="width:85%"></i></div></div>
+</section>
+
+<section class="tilebox c-tx">
+  <h2 class="t-title">Key findings</h2>
+  <div class="tx"><div class="when">Question 1</div><div class="who"><span class="dot">&#127881;</span><div><b>Holidays and events help</b><span>On the days they describe</span></div></div><div class="amt">-30%<span>holiday-day error</span></div></div>
+  <div class="tx"><div class="when">Question 2</div><div class="who"><span class="dot">&#127919;</span><div><b>Effects recovered</b><span>Diwali is under-estimated</span></div></div><div class="amt">17%<span>peak vs 20% true</span></div></div>
+  <div class="tx"><div class="when">Question 3</div><div class="who"><span class="dot">&#9878;</span><div><b>Prophet beats SARIMAX</b><span>Out of sample, same calendar inputs</span></div></div><div class="amt">2.45%<span>vs 4.97%</span></div></div>
+</section>
+
+<section class="tilebox c-prem">
+  <h2 class="t-title">Code and data</h2>
+  <p>Notebook, synthetic data, generator and ground truth, all on GitHub.</p>
+  <div style="font-size:2.6rem;font-weight:600;color:var(--teal);margin-top:.6rem;letter-spacing:-.05em">&lt;/&gt;</div>
+  <a class="cta" href="https://github.com/san2736/upi-project">Open repository</a>
+</section>
+
+</div>
+```
