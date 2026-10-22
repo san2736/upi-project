@@ -290,7 +290,7 @@ window.Quarto = {
 </tr>
 </tbody>
 </table>
-<p>Date: 22.10.206</p>
+<p>Date: 22.10.2026</p>
 <section id="overview" class="level2">
 <h2 class="anchored" data-anchor-id="overview">Overview</h2>
 <p><strong>Problem.</strong> UPI processes hundreds of millions of payments a day, and daily volume is not smooth. It rises on weekends and paydays, ramps up before Diwali, dips on national holidays and jumps during e-commerce sales. Daily forecasts are needed for server capacity, fraud-monitoring baselines and settlement liquidity, and a forecast that ignores the calendar is wrong on exactly the busiest days.</p>
@@ -349,7 +349,7 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="data">1. Data</h2>
 <section id="setup" class="level3">
 <h3 class="anchored" data-anchor-id="setup">1.1 Setup</h3>
-<div id="cell-002" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-22T16:04:56.546625Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-22T16:04:56.545905Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-22T16:05:00.427351Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-22T16:05:00.426167Z&quot;}}" data-execution_count="1">
+<div id="cell-002" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json, logging, warnings, itertools, time</span>
@@ -419,7 +419,7 @@ window.Quarto = {
 <li>Every month then sums exactly to the NPCI total, except five festive months.</li>
 </ul>
 <p>The five festive months are not forced to match. Forcing them pushed their ordinary days about 5% below trend and hid half of the Diwali effect. We found this in the first version of our generator and fixed it (<code>DATA.md</code> §3.4).</p>
-<div id="cell-004" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-22T16:05:00.429613Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-22T16:05:00.429328Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-22T16:05:00.466776Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-22T16:05:00.465207Z&quot;}}" data-execution_count="2">
+<div id="cell-004" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(DATA <span class="op">/</span> <span class="st">"synthetic_daily.csv"</span>, parse_dates<span class="op">=</span>[<span class="st">"ds"</span>])</span>
@@ -448,7 +448,7 @@ window.Quarto = {
 <div class="cell-output cell-output-stdout">
 <pre><code>1704 days, 2022-01-01 to 2026-08-31</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="2">
+<div class="cell-output cell-output-display" data-execution_count="4">
 <div>
 
 
@@ -563,7 +563,7 @@ window.Quarto = {
 <li><strong>Month-end.</strong> The last 2 days of each month: +3%.</li>
 </ul>
 <p>Each day is labelled for the evaluation: <strong>holiday window</strong>, <strong>sale event</strong>, or <strong>ordinary</strong>.</p>
-<div id="cell-006" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-22T16:05:00.469025Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-22T16:05:00.468782Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-22T16:05:00.505810Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-22T16:05:00.504292Z&quot;}}" data-execution_count="3">
+<div id="cell-006" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>sale_rows <span class="op">=</span> truth[<span class="st">"hidden_sale_NOT_given_to_prophet"</span>]   <span class="co"># the generator's name for the sale; we now use it as an event</span></span>
@@ -592,7 +592,7 @@ window.Quarto = {
 <span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>DAY_TYPES <span class="op">=</span> [<span class="st">"ordinary"</span>, <span class="st">"holiday window"</span>, <span class="st">"sale event"</span>]</span>
 <span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>sale</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="3">
+<div class="cell-output cell-output-display" data-execution_count="5">
 <div>
 
 
@@ -654,7 +654,7 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="exploratory-data-analysis">2. Exploratory data analysis</h2>
 <section id="the-series" class="level3">
 <h3 class="anchored" data-anchor-id="the-series">2.1 The series</h3>
-<div id="cell-008" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-22T16:05:00.508354Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-22T16:05:00.508109Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-22T16:05:00.975635Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-22T16:05:00.974941Z&quot;}}" data-execution_count="4">
+<div id="cell-008" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">6</span>), sharex<span class="op">=</span><span class="va">True</span>, gridspec_kw<span class="op">=</span>{<span class="st">"height_ratios"</span>: [<span class="dv">2</span>, <span class="dv">1</span>]})</span>
@@ -686,7 +686,7 @@ window.Quarto = {
 </section>
 <section id="stl-decomposition-log-scale-weekly-period" class="level3">
 <h3 class="anchored" data-anchor-id="stl-decomposition-log-scale-weekly-period">2.2 STL decomposition (log scale, weekly period)</h3>
-<div id="cell-010" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-22T16:05:00.977742Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-22T16:05:00.977534Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-22T16:05:01.839944Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-22T16:05:01.837732Z&quot;}}" data-execution_count="5">
+<div id="cell-010" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>stl <span class="op">=</span> STL(np.log(df.set_index(<span class="st">"ds"</span>).y), period<span class="op">=</span><span class="dv">7</span>, robust<span class="op">=</span><span class="va">True</span>).fit()</span>
@@ -718,7 +718,7 @@ window.Quarto = {
 <li><strong>KPSS test:</strong> the null hypothesis is stationarity.</li>
 </ul>
 <p>A series counts as stationary only when both agree.</p>
-<div id="cell-012" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-22T16:05:01.842654Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-22T16:05:01.842433Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-22T16:05:01.932690Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-22T16:05:01.932228Z&quot;}}" data-execution_count="6">
+<div id="cell-012" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> stationarity(x, label):</span>
@@ -730,7 +730,7 @@ window.Quarto = {
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>ly <span class="op">=</span> np.log(df.y.values)</span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>pd.DataFrame([stationarity(ly, <span class="st">"log y"</span>), stationarity(np.diff(ly), <span class="st">"Δ log y (first difference)"</span>)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="6">
+<div class="cell-output cell-output-display" data-execution_count="8">
 <div>
 
 
@@ -765,7 +765,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="cell-013" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-22T16:05:01.935527Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-22T16:05:01.935210Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-22T16:05:02.311025Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-22T16:05:02.309574Z&quot;}}" data-execution_count="7">
+<div id="cell-013" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">3.2</span>))</span>
@@ -793,7 +793,7 @@ window.Quarto = {
 <section id="weekday-and-day-of-month-profiles" class="level3">
 <h3 class="anchored" data-anchor-id="weekday-and-day-of-month-profiles">2.4 Weekday and day-of-month profiles</h3>
 <p>Each day is divided by a centred 28-day average (to remove the trend). Holiday and sale days are left out, then the ratios are averaged.</p>
-<div id="cell-015" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-22T16:05:02.313777Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-22T16:05:02.313552Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-22T16:05:02.675185Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-22T16:05:02.673932Z&quot;}}" data-execution_count="8">
+<div id="cell-015" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>tmp <span class="op">=</span> df.set_index(<span class="st">"ds"</span>).copy()</span>
@@ -918,7 +918,7 @@ window.Quarto = {
 <li><code>yearly_seasonality = 3</code> is a low-order yearly curve. A flexible yearly curve partly absorbs Diwali, because Diwali always falls in Oct–Nov.</li>
 <li>These two values performed best in a preliminary cross-validated search. The holiday and seasonality prior scales made almost no difference, so they stay at Prophet’s defaults.</li>
 </ul>
-<div id="cell-017" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-22T16:05:02.677470Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-22T16:05:02.677192Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-22T16:05:02.683716Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-22T16:05:02.682499Z&quot;}}" data-execution_count="9">
+<div id="cell-017" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>PROPHET_SETTINGS <span class="op">=</span> <span class="bu">dict</span>(growth<span class="op">=</span><span class="st">"linear"</span>, seasonality_mode<span class="op">=</span><span class="st">"multiplicative"</span>, changepoint_prior_scale<span class="op">=</span><span class="fl">0.005</span>,</span>
@@ -955,7 +955,7 @@ window.Quarto = {
 <li>keep the lowest <strong>AIC</strong>.</li>
 </ul>
 <p>The search uses <strong>only the first two years</strong> (2022–2023), so nothing from the evaluation period influences the choice. 36 models are fitted in parallel, which takes a few minutes.</p>
-<div id="cell-019" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-22T16:05:02.686501Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-22T16:05:02.686240Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-22T16:09:43.350848Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-22T16:09:43.349777Z&quot;}}" data-execution_count="10">
+<div id="cell-019" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calendar_exog(dates, table<span class="op">=</span>HOLIDAYS_AND_EVENTS, fourier_k<span class="op">=</span><span class="dv">3</span>):</span>
@@ -1005,9 +1005,9 @@ window.Quarto = {
 <span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a>aic_tab[[<span class="st">"(p,q,P,Q)"</span>, <span class="st">"AIC"</span>, <span class="st">"BIC"</span>]].head(<span class="dv">5</span>).<span class="bu">round</span>(<span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>36 models in 281s</code></pre>
+<pre><code>36 models in 155s</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="10">
+<div class="cell-output cell-output-display" data-execution_count="12">
 <div>
 
 
@@ -1024,32 +1024,32 @@ window.Quarto = {
 <tr class="odd">
 <th data-quarto-table-cell-role="th">0</th>
 <td>(1, 1, 1, 1)</td>
-<td>-3091.9</td>
-<td>-2807.2</td>
+<td>-3080.1</td>
+<td>-2795.4</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">1</th>
-<td>(1, 2, 1, 1)</td>
-<td>-3083.1</td>
-<td>-2793.8</td>
+<td>(2, 1, 1, 1)</td>
+<td>-3073.5</td>
+<td>-2784.3</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">2</th>
-<td>(2, 2, 1, 1)</td>
-<td>-3081.0</td>
-<td>-2787.1</td>
+<td>(0, 2, 1, 1)</td>
+<td>-3070.9</td>
+<td>-2786.2</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">3</th>
-<td>(0, 2, 1, 1)</td>
-<td>-3070.5</td>
-<td>-2785.8</td>
+<td>(1, 2, 1, 1)</td>
+<td>-3066.5</td>
+<td>-2777.2</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">4</th>
-<td>(2, 1, 1, 1)</td>
-<td>-3069.4</td>
-<td>-2780.1</td>
+<td>(2, 2, 1, 1)</td>
+<td>-3048.4</td>
+<td>-2754.6</td>
 </tr>
 </tbody>
 </table>
@@ -1057,7 +1057,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="cell-020" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-22T16:09:43.352801Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-22T16:09:43.352609Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-22T16:09:44.934863Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-22T16:09:44.933804Z&quot;}}" data-execution_count="11">
+<div id="cell-020" class="cell" data-execution_count="13">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>p, q, P, Q <span class="op">=</span> aic_tab.loc[<span class="dv">0</span>, <span class="st">"(p,q,P,Q)"</span>]</span>
@@ -1073,8 +1073,8 @@ window.Quarto = {
 <span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>show(fig, <span class="st">"3_2_sarimax_diagnostics"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Selected: SARIMAX(1, 1, 1)x(1, 0, 1, 7)   AIC = -3091.9   BIC = -2807.2
-Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.120, lag 14 = 0.014</code></pre>
+<pre><code>Selected: SARIMAX(1, 1, 1)x(1, 0, 1, 7)   AIC = -3080.1   BIC = -2795.4
+Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.010, lag 14 = 0.001</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <div>
@@ -1089,8 +1089,8 @@ Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.120, lag 14 = 0.014</code></p
 <li><strong>AIC selects SARIMAX(1,1,1)(1,0,1)₇:</strong> one AR and one MA term after a first difference, plus a weekly seasonal AR and MA term.</li>
 <li><strong>The five best models all have <span class="math inline">\(P = Q = 1\)</span>,</strong> so the weekly seasonal terms matter most.</li>
 <li><strong>The diagnostic plots</strong> show standardised residuals without obvious pattern and a near-normal histogram and Q-Q plot (slightly heavy tails). The correlogram is mostly inside the confidence band.</li>
-<li><strong>Ljung–Box finds no significant autocorrelation up to lag 7 (p = 0.12),</strong> but a small amount by lag 14 (p = 0.01). The residuals are close to white noise, and far cleaner than Prophet’s (Section 6).</li>
-<li><strong>So by the course’s in-sample criteria this is a reasonable model.</strong> Section 4 tests whether it also forecasts well.</li>
+<li><strong>Ljung–Box finds a small amount of autocorrelation</strong> (p = 0.010 at lag 7 and 0.001 at lag 14). The residuals are not perfectly white noise, but they are far cleaner than Prophet’s (p ≈ 10⁻⁸⁸, Section 6).</li>
+<li><strong>So by the course’s in-sample criteria this is a reasonable, if imperfect, model.</strong> Section 4 tests whether it also forecasts well.</li>
 </ul>
 </section>
 </section>
@@ -1111,7 +1111,7 @@ Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.120, lag 14 = 0.014</code></p
 <li><strong>MAE</strong>: mean absolute error, in million transactions per day.</li>
 <li><strong>RMSE</strong>: like MAE, but penalises large misses more.</li>
 </ul>
-<div id="cell-022" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-22T16:09:44.937294Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-22T16:09:44.937019Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-22T16:12:19.935791Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-22T16:12:19.934195Z&quot;}}" data-execution_count="12">
+<div id="cell-022" class="cell" data-execution_count="14">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>HORIZON, INITIAL, STEP <span class="op">=</span> <span class="dv">90</span>, <span class="dv">730</span>, <span class="dv">90</span></span>
@@ -1167,13 +1167,13 @@ Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.120, lag 14 = 0.014</code></p
 <span id="cb15-51"><a href="#cb15-51" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span><span class="bu">len</span>(LABELS)<span class="sc">}</span><span class="ss"> models × </span><span class="sc">{</span><span class="bu">len</span>(cutoffs)<span class="sc">}</span><span class="ss"> folds in </span><span class="sc">{</span>time<span class="sc">.</span>time() <span class="op">-</span> t0<span class="sc">:.0f}</span><span class="ss">s"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>5 models × 10 folds in 155s</code></pre>
+<pre><code>5 models × 10 folds in 103s</code></pre>
 </div>
 </div>
 </section>
 <section id="results" class="level3">
 <h3 class="anchored" data-anchor-id="results">4.2 Results</h3>
-<div id="cell-024" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-22T16:12:19.938707Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-22T16:12:19.938447Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-22T16:12:19.985080Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-22T16:12:19.983959Z&quot;}}" data-execution_count="13">
+<div id="cell-024" class="cell" data-execution_count="15">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> []</span>
@@ -1189,9 +1189,9 @@ Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.120, lag 14 = 0.014</code></p
 <span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>results.<span class="bu">round</span>(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>SARIMAX (selection window): AIC = -3091.9, BIC = -2807.2</code></pre>
+<pre><code>SARIMAX (selection window): AIC = -3080.1, BIC = -2795.4</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="13">
+<div class="cell-output cell-output-display" data-execution_count="15">
 <div>
 
 
@@ -1228,15 +1228,15 @@ Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.120, lag 14 = 0.014</code></p
 <tr class="even">
 <th data-quarto-table-cell-role="th">1</th>
 <td>M2 SARIMAX</td>
-<td>4.97</td>
-<td>5.05</td>
-<td>4.89</td>
-<td>29.51</td>
-<td>37.79</td>
-<td>10.73</td>
-<td>4.82</td>
-<td>6.86</td>
-<td>5.09</td>
+<td>4.73</td>
+<td>4.90</td>
+<td>4.63</td>
+<td>28.64</td>
+<td>38.03</td>
+<td>12.31</td>
+<td>4.61</td>
+<td>6.32</td>
+<td>4.56</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">2</th>
@@ -1246,36 +1246,36 @@ Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.120, lag 14 = 0.014</code></p
 <td>3.35</td>
 <td>19.48</td>
 <td>25.43</td>
-<td>-4.13</td>
+<td>-4.11</td>
 <td>3.11</td>
 <td>5.21</td>
-<td>7.27</td>
+<td>7.26</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">3</th>
 <td>M4 Prophet + holidays</td>
 <td>3.17</td>
-<td>3.18</td>
+<td>3.17</td>
 <td>3.20</td>
-<td>18.58</td>
-<td>23.92</td>
-<td>-3.14</td>
+<td>18.55</td>
+<td>23.87</td>
+<td>-3.15</td>
 <td>3.07</td>
-<td>3.63</td>
-<td>8.57</td>
+<td>3.64</td>
+<td>8.56</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">4</th>
 <td>M5 Prophet + holidays + events</td>
-<td>2.45</td>
 <td>2.44</td>
-<td>2.45</td>
-<td>14.25</td>
-<td>18.21</td>
-<td>-0.69</td>
-<td>2.37</td>
+<td>2.43</td>
+<td>2.44</td>
+<td>14.20</td>
+<td>18.14</td>
+<td>-0.71</td>
+<td>2.36</td>
 <td>3.10</td>
-<td>4.33</td>
+<td>4.12</td>
 </tr>
 </tbody>
 </table>
@@ -1287,7 +1287,7 @@ Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.120, lag 14 = 0.014</code></p
 <section id="performance-by-forecast-horizon-and-fold" class="level3">
 <h3 class="anchored" data-anchor-id="performance-by-forecast-horizon-and-fold">4.3 Performance by forecast horizon and fold</h3>
 <p>Overlapping rolling-origin folds are useful for evaluating forecast operations, but their errors are not independent observations. We therefore report pooled errors by lead time and the spread in fold-level MAPE, rather than treating every forecasted day as an independent replicate. WAPE complements MAPE by weighting errors according to transaction volume.</p>
-<div id="cell-026" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-22T16:12:19.987771Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-22T16:12:19.987486Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-22T16:12:20.081574Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-22T16:12:20.080575Z&quot;}}" data-execution_count="14">
+<div id="cell-026" class="cell" data-execution_count="16">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Pooled error by forecast lead. lead_days is computed from each fold's forecast origin.</span></span>
@@ -1327,7 +1327,7 @@ Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.120, lag 14 = 0.014</code></p
 <span id="cb19-35"><a href="#cb19-35" aria-hidden="true" tabindex="-1"></a>fold_summary.to_csv(OUT <span class="op">/</span> <span class="st">"fold_summary.csv"</span>)</span>
 <span id="cb19-36"><a href="#cb19-36" aria-hidden="true" tabindex="-1"></a>fold_summary.<span class="bu">round</span>(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="14">
+<div class="cell-output cell-output-display" data-execution_count="16">
 <div>
 
 
@@ -1358,31 +1358,31 @@ Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.120, lag 14 = 0.014</code></p
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">M2 SARIMAX</th>
-<td>4.971</td>
-<td>1.868</td>
-<td>2.808</td>
-<td>8.434</td>
+<td>4.733</td>
+<td>2.095</td>
+<td>2.572</td>
+<td>8.729</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">M3 Prophet base</th>
 <td>3.316</td>
-<td>0.448</td>
+<td>0.449</td>
 <td>2.886</td>
 <td>4.328</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">M4 Prophet + holidays</th>
-<td>3.175</td>
-<td>0.417</td>
-<td>2.839</td>
-<td>4.287</td>
+<td>3.172</td>
+<td>0.421</td>
+<td>2.837</td>
+<td>4.298</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">M5 Prophet + holidays + events</th>
-<td>2.448</td>
-<td>0.374</td>
-<td>1.915</td>
-<td>3.364</td>
+<td>2.438</td>
+<td>0.354</td>
+<td>1.914</td>
+<td>3.300</td>
 </tr>
 </tbody>
 </table>
@@ -1390,7 +1390,7 @@ Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.120, lag 14 = 0.014</code></p
 </div>
 </div>
 </div>
-<div id="cell-027" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-22T16:12:20.083613Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-22T16:12:20.083418Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-22T16:12:20.337799Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-22T16:12:20.336303Z&quot;}}" data-execution_count="15">
+<div id="cell-027" class="cell" data-execution_count="17">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">3.8</span>))</span>
@@ -1413,14 +1413,14 @@ Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.120, lag 14 = 0.014</code></p
 </div>
 <p><strong>Reading:</strong></p>
 <ul>
-<li><strong>Prophet with holidays and events (M5) is the most accurate model:</strong> 2.45% MAPE, less than half the seasonal naïve error (5.54%).</li>
-<li><strong>Holidays help on holiday days.</strong> Adding them (M3 → M4) cuts holiday-window error from 5.21% to 3.63%, about 30% lower, while ordinary days barely change (3.11% → 3.07%).</li>
-<li><strong>Events give the biggest overall gain</strong> (M4 → M5: 3.17% → 2.45%):
+<li><strong>Prophet with holidays and events (M5) is the most accurate model:</strong> 2.44% MAPE, less than half the seasonal naïve error (5.54%).</li>
+<li><strong>Holidays help on holiday days.</strong> Adding them (M3 → M4) cuts holiday-window error from 5.21% to 3.64%, about 30% lower, while ordinary days barely change (3.11% → 3.07%).</li>
+<li><strong>Events give the biggest overall gain</strong> (M4 → M5: 3.17% → 2.44%):
 <ul>
-<li>Payday and month-end affect seven days of every month, so ordinary-day error falls from 3.07% to 2.37%.</li>
-<li>The sale’s own days improve from 8.57% to 4.33%. Without the sale in the model, those days are under-forecast by about 8.6% on average.</li>
+<li>Payday and month-end affect seven days of every month, so ordinary-day error falls from 3.07% to 2.36%.</li>
+<li>The sale’s own days improve from 8.56% to 4.12%. Without the sale in the model, those days are under-forecast by about 8.6% on average.</li>
 </ul></li>
-<li><strong>SARIMAX, given the same calendar information, reaches only 4.96%.</strong> It over-forecasts holiday days by about 5.8% on average, and its errors build up over the 90-day horizon. Prophet’s structure (deterministic trend plus calendar terms) suits long-horizon daily forecasting better.</li>
+<li><strong>SARIMAX, given the same calendar information, reaches only 4.73%.</strong> It over-forecasts holiday days by about 5.3% on average, and its errors build up over the horizon: 2.92% at 7 days, 3.25% at 30 days and 4.73% at 90 days, against 2.15%, 2.21% and 2.44% for M5. Its fold-to-fold spread is also the widest (MAPE from 2.6% to 8.7%). Prophet’s structure (deterministic trend plus calendar terms) suits long-horizon daily forecasting better.</li>
 <li><strong>A good fit is not a good forecast.</strong> SARIMAX’s in-sample residuals were much closer to white noise than Prophet’s, yet it forecast worse than every Prophet variant. That is why we judge all models on out-of-sample forecasts.</li>
 </ul>
 </section>
@@ -1428,7 +1428,7 @@ Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.120, lag 14 = 0.014</code></p
 <section id="holiday-and-event-effects" class="level2">
 <h2 class="anchored" data-anchor-id="holiday-and-event-effects">5. Holiday and event effects</h2>
 <p>We fit the full model (M5) on all the data and read off its estimated effects. Each holiday or event column in Prophet’s output is the multiplicative effect on that day (0.12 means +12%). We compare these with the true injected effects, which is possible only because the data is synthetic.</p>
-<div id="cell-029" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-22T16:12:20.340485Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-22T16:12:20.340261Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-22T16:12:21.800210Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-22T16:12:21.798505Z&quot;}}" data-execution_count="16">
+<div id="cell-029" class="cell" data-execution_count="18">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>m5 <span class="op">=</span> make_prophet(<span class="st">"M5"</span>).fit(df[FIT_COLS])</span>
@@ -1454,7 +1454,7 @@ Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.120, lag 14 = 0.014</code></p
 </ul>
 <section id="estimated-against-true-effect-for-each-holiday-and-event" class="level3">
 <h3 class="anchored" data-anchor-id="estimated-against-true-effect-for-each-holiday-and-event">5.1 Estimated against true effect for each holiday and event</h3>
-<div id="cell-031" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-22T16:12:21.803099Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-22T16:12:21.802873Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-22T16:12:21.839716Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-22T16:12:21.838359Z&quot;}}" data-execution_count="17">
+<div id="cell-031" class="cell" data-execution_count="19">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>offsets <span class="op">=</span> pd.DataFrame([(r.holiday, k, r.ds <span class="op">+</span> pd.Timedelta(days<span class="op">=</span>k))</span>
@@ -1482,7 +1482,7 @@ Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.120, lag 14 = 0.014</code></p
 <span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>effect_table.to_csv(OUT <span class="op">/</span> <span class="st">"effect_recovery.csv"</span>)</span>
 <span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>effect_table.<span class="bu">round</span>(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="17">
+<div class="cell-output cell-output-display" data-execution_count="19">
 <div>
 
 
@@ -1505,56 +1505,56 @@ Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.120, lag 14 = 0.014</code></p
 <tr class="odd">
 <th data-quarto-table-cell-role="th">diwali</th>
 <td>9.14</td>
-<td>7.75</td>
-<td>-1.39</td>
+<td>8.05</td>
+<td>-1.10</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">holi</th>
 <td>1.50</td>
-<td>0.87</td>
-<td>-0.63</td>
+<td>0.89</td>
+<td>-0.61</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">eid_al_fitr</th>
 <td>4.50</td>
-<td>3.91</td>
-<td>-0.59</td>
+<td>3.79</td>
+<td>-0.71</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">raksha_bandhan</th>
 <td>3.87</td>
-<td>5.39</td>
-<td>1.51</td>
+<td>5.20</td>
+<td>1.33</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">republic_day</th>
 <td>-5.00</td>
-<td>-6.86</td>
-<td>-1.86</td>
+<td>-6.70</td>
+<td>-1.70</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">independence_day</th>
 <td>-5.00</td>
-<td>-7.58</td>
-<td>-2.58</td>
+<td>-7.40</td>
+<td>-2.40</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">gandhi_jayanti</th>
 <td>-5.00</td>
-<td>-6.65</td>
-<td>-1.65</td>
+<td>-6.23</td>
+<td>-1.23</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">ecommerce_sale</th>
 <td>10.67</td>
-<td>9.80</td>
-<td>-0.88</td>
+<td>10.21</td>
+<td>-0.46</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">payday (days 1–5)</th>
 <td>6.00</td>
-<td>6.17</td>
-<td>0.17</td>
+<td>6.18</td>
+<td>0.18</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">month-end (last 2 days)</th>
@@ -1568,7 +1568,7 @@ Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.120, lag 14 = 0.014</code></p
 </div>
 </div>
 </div>
-<div id="cell-032" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-22T16:12:21.841821Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-22T16:12:21.841602Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-22T16:12:23.018495Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-22T16:12:23.017132Z&quot;}}" data-execution_count="18">
+<div id="cell-032" class="cell" data-execution_count="20">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>names <span class="op">=</span> <span class="bu">list</span>(<span class="bu">dict</span>.fromkeys(festivals.holiday))</span>
@@ -1609,15 +1609,15 @@ Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.120, lag 14 = 0.014</code></p
 <ul>
 <li>payday +6.2% (true +6.0%);</li>
 <li>month-end +3.3% (true +3.0%);</li>
-<li>the sale +9.8% (true +10.7% on average). The sale’s real lift varies between 8% and 12% from year to year, while the model fits one average.</li>
+<li>the sale +10.2% (true +10.7% on average). The sale’s real lift varies between 8% and 12% from year to year, while the model fits one average.</li>
 </ul></li>
-<li><strong>Diwali’s shape is recovered:</strong> the ramp over ten days, the peak on Dhanteras and Diwali eve, and the dip after. <strong>Its size is under-estimated:</strong> a 7.7% window average against a true 9.1%, and a peak of about 17% against 20%.
+<li><strong>Diwali’s shape is recovered:</strong> the ramp over ten days, the peak on Dhanteras and Diwali eve, and the dip after. <strong>Its size is under-estimated:</strong> an 8.1% window average against a true 9.1%.
 <ul>
 <li>Each of its 14 daily coefficients is estimated from only four Diwalis.</li>
 <li>Part of the festive lift is absorbed by the yearly seasonality, since Diwali always falls in Oct–Nov.</li>
 </ul></li>
-<li><strong>Holi, Eid al-Fitr and Raksha Bandhan are within about 1.5 pp.</strong> Holi’s −10% on the day itself is caught almost exactly.</li>
-<li><strong>Single-day national holidays come out about 2 pp more negative than −5%.</strong> Each occurs only four or five times, so their estimates are the noisiest.</li>
+<li><strong>Holi, Eid al-Fitr and Raksha Bandhan are within about 1.3 pp.</strong> Holi’s −10% on the day itself is caught almost exactly.</li>
+<li><strong>Single-day national holidays come out 1.2 to 2.4 pp more negative than −5%.</strong> Each occurs only four or five times, so their estimates are the noisiest.</li>
 </ul>
 <p><strong>Overall:</strong> the bigger and more frequent the effect, the more precisely Prophet recovers it.</p>
 </section>
@@ -1629,7 +1629,7 @@ Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.120, lag 14 = 0.014</code></p
 <li><strong>Ljung–Box:</strong> are the residuals autocorrelated? A small p-value means yes.</li>
 <li><strong>ARCH-LM:</strong> does the size of the residuals vary over time (heteroskedasticity)? A small p-value means yes.</li>
 </ul>
-<div id="cell-034" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-22T16:12:23.020682Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-22T16:12:23.020481Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-22T16:12:23.507191Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-22T16:12:23.505797Z&quot;}}" data-execution_count="19">
+<div id="cell-034" class="cell" data-execution_count="21">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> np.log(df.y.values) <span class="op">-</span> np.log(f5.yhat.values)</span>
@@ -1650,8 +1650,8 @@ Ljung-Box p-values on SARIMAX residuals: lag 7 = 0.120, lag 14 = 0.014</code></p
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Lag-1 autocorrelation: 0.38   (the generator's noise has 0.3)
-Ljung-Box p-values: lag 7 = 4.6e-89, lag 14 = 3.1e-105
-ARCH-LM (7 lags): LM = 31.5, p = 5.1e-05</code></pre>
+Ljung-Box p-values: lag 7 = 4.1e-88, lag 14 = 4.4e-104
+ARCH-LM (7 lags): LM = 29.4, p = 0.00012</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <div>
@@ -1664,7 +1664,7 @@ ARCH-LM (7 lags): LM = 31.5, p = 5.1e-05</code></pre>
 <p><strong>Reading:</strong></p>
 <ul>
 <li><strong>The residuals are autocorrelated.</strong> Lag-1 is 0.38, above the 0.3 built into the noise, and Ljung–Box rejects strongly. Prophet assumes independent errors and does not model this, so it leaves short-term information unused.</li>
-<li><strong>The residual variance is not constant.</strong> ARCH-LM gives p ≈ 5 × 10⁻⁵, and the rolling SD ranges from about 1.5% to 3.8%. The effect is mild, but Prophet’s prediction intervals assume constant variance, so they are too narrow in volatile periods.</li>
+<li><strong>The residual variance is not constant.</strong> ARCH-LM gives p ≈ 1 × 10⁻⁴, and the rolling SD changes visibly over time. The effect is mild, but Prophet’s prediction intervals assume constant variance, so they are too narrow in volatile periods.</li>
 <li><strong>Both point to the same extensions:</strong> model the residuals with ARIMA (a Prophet + ARIMA hybrid), or the variance with GARCH.</li>
 </ul>
 </section>
@@ -1675,7 +1675,7 @@ ARCH-LM (7 lags): LM = 31.5, p = 5.1e-05</code></pre>
 <li>Payday and month-end come straight from the calendar.</li>
 <li>Diwali 2026 (8 November) and the 2026 sale (21–25 October) are in the holiday/event table, so both appear in the forecast.</li>
 </ul>
-<div id="cell-036" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-22T16:12:23.509532Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-10-22T16:12:23.509327Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-10-22T16:12:23.970324Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-22T16:12:23.968923Z&quot;}}" data-execution_count="20">
+<div id="cell-036" class="cell" data-execution_count="22">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>future <span class="op">=</span> m5.make_future_dataframe(periods<span class="op">=</span><span class="dv">180</span>)</span>
@@ -1712,7 +1712,7 @@ ARCH-LM (7 lags): LM = 31.5, p = 5.1e-05</code></pre>
 </figure>
 </div>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="20">
+<div class="cell-output cell-output-display" data-execution_count="22">
 <div>
 
 
@@ -1737,27 +1737,27 @@ ARCH-LM (7 lags): LM = 31.5, p = 5.1e-05</code></pre>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">Oct 2026</th>
-<td>25.74</td>
+<td>25.75</td>
 <td>31</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">Nov 2026</th>
-<td>25.49</td>
+<td>25.51</td>
 <td>30</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">Dec 2026</th>
-<td>25.99</td>
+<td>26.01</td>
 <td>31</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">Jan 2027</th>
-<td>26.42</td>
+<td>26.44</td>
 <td>31</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">Feb 2027</th>
-<td>23.51</td>
+<td>23.53</td>
 <td>27</td>
 </tr>
 </tbody>
@@ -1780,18 +1780,18 @@ ARCH-LM (7 lags): LM = 31.5, p = 5.1e-05</code></pre>
 <h3 class="anchored" data-anchor-id="answers-to-the-questions">Answers to the questions</h3>
 <p><strong>1. Do holidays and events improve the forecast, and where?</strong></p>
 <ul>
-<li>Yes. Adding holidays cut holiday-window error by about 30% (5.21% → 3.63%).</li>
-<li>Adding events (payday, month-end, the sale) cut overall error from 3.17% to 2.45% and halved the error on sale days.</li>
+<li>Yes. Adding holidays cut holiday-window error by about 30% (5.21% → 3.64%).</li>
+<li>Adding events (payday, month-end, the sale) cut overall error from 3.17% to 2.44% and more than halved the error on sale days (8.56% → 4.12%).</li>
 <li>Each improvement appears exactly on the days the added information describes. Ordinary days change only when payday is added.</li>
 </ul>
 <p><strong>2. Does Prophet recover the true effects?</strong></p>
 <ul>
-<li>Events and short holidays, closely: payday 6.2% against 6.0%, the sale 9.8% against 10.7%, Holi and Eid within about 1 pp.</li>
-<li>Diwali’s shape is right, but its size is under-estimated (7.7% against 9.1%). It is a long festival seen only four times, and it overlaps the yearly cycle.</li>
+<li>Events and short holidays, closely: payday 6.2% against 6.0%, the sale 10.2% against 10.7%, Holi and Eid within about 1 pp.</li>
+<li>Diwali’s shape is right, but its size is under-estimated (8.1% against 9.1%). It is a long festival seen only four times, and it overlaps the yearly cycle.</li>
 </ul>
 <p><strong>3. Prophet vs SARIMAX?</strong></p>
 <ul>
-<li>With the same calendar information, Prophet M5 (2.45%) clearly beat SARIMAX (4.96%), whose errors grow with the forecast horizon.</li>
+<li>With the same calendar information, Prophet M5 (2.44%) clearly beat SARIMAX (4.73%), whose errors grow with the forecast horizon. M5 was also more accurate at every horizon (7, 30 and 90 days).</li>
 <li>SARIMAX had much cleaner in-sample residuals, which shows that a good fit does not guarantee a good forecast.</li>
 </ul>
 </section>
@@ -1823,7 +1823,7 @@ ARCH-LM (7 lags): LM = 31.5, p = 5.1e-05</code></pre>
 <li>Keep <code>DATA.md</code> with the documented NPCI source URLs and the synthetic data-generation assumptions.</li>
 <li>Install compatible versions of <code>prophet</code>, <code>statsmodels</code>, <code>pandas</code>, <code>numpy</code>, <code>matplotlib</code>, and <code>joblib</code>.</li>
 <li>Run cells from top to bottom. Outputs and CSV summaries are saved under <code>results/</code>.</li>
-<li>The notebook validates the daily index and input columns before modelling. The SARIMAX lognormal correction is an approximation and should be retained only if it improves held-out validation metrics.</li>
+<li>The notebook validates the daily index and input columns before modelling. The SARIMAX lognormal correction is an approximation.</li>
 <li>Synthetic event effects are known by construction; effect-recovery tables are a simulation check, not causal estimates for real UPI.</li>
 </ul>
 

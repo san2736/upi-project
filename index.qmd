@@ -27,7 +27,7 @@ title-block-banner: false
     <div>
       <div class="bal-label">Aug 2026 actual</div>
       <div class="bal-num">24.5 bn</div>
-      <div class="muted" style="margin-top:.3rem">Peak days: 2026 sale (21 to 25 Oct) and Diwali (8 Nov), near 1 bn a day.</div>
+      <div class="muted" style="margin-top:.3rem">Peak days: 2026 sale (21 to 25 Oct) and the Diwali ramp, up to about 0.98 bn a day.</div>
       <a class="link-arrow" href="upi_prophet_forecasting.html">View analysis <i>&#8599;</i></a>
     </div>
   </div>
@@ -51,7 +51,7 @@ title-block-banner: false
 <section class="tilebox c-inc">
   <h2 class="t-title"><span class="badge-ic">&#10003;</span>Best</h2>
   <div class="muted" style="margin-top:.6rem">Prophet + holidays + events</div>
-  <div class="big" style="margin-top:1.4rem">2.45%<span class="pill up">-56%</span></div>
+  <div class="big" style="margin-top:1.4rem">2.44%<span class="pill up">-56%</span></div>
   <div class="muted foot">Forecast error (MAPE), 10 rolling folds</div>
 </section>
 
@@ -59,34 +59,34 @@ title-block-banner: false
   <h2 class="t-title"><span class="badge-ic">&#8801;</span>Baseline</h2>
   <div class="muted" style="margin-top:.6rem">Seasonal naive</div>
   <div class="big" style="margin-top:1.4rem">5.54%</div>
-  <div class="muted foot">Same weekday last week. SARIMAX: 4.97%</div>
+  <div class="muted foot">Same weekday last week. SARIMAX: 4.73%</div>
 </section>
 
 <section class="tilebox c-bars">
   <h2 class="t-title"><span class="badge-ic">&#9644;</span>Error by model <span class="muted" style="margin-left:auto;font-weight:400">MAPE %, lower is better</span></h2>
-  <div class="bars" role="img" aria-label="MAPE: seasonal naive 5.54, SARIMAX 4.97, Prophet base 3.32, Prophet plus holidays 3.17, Prophet plus holidays and events 2.45">
+  <div class="bars" role="img" aria-label="MAPE: seasonal naive 5.54, SARIMAX 4.73, Prophet base 3.32, Prophet plus holidays 3.17, Prophet plus holidays and events 2.44">
     <div class="col"><div class="val">5.54</div><div class="track"><div class="fill" style="height:92%"></div></div><div class="lab">M1 Seasonal naive</div></div>
-    <div class="col"><div class="val">4.97</div><div class="track"><div class="fill" style="height:83%"></div></div><div class="lab">M2 SARIMAX</div></div>
+    <div class="col"><div class="val">4.73</div><div class="track"><div class="fill" style="height:79%"></div></div><div class="lab">M2 SARIMAX</div></div>
     <div class="col"><div class="val">3.32</div><div class="track"><div class="fill" style="height:55%"></div></div><div class="lab">M3 Prophet base</div></div>
     <div class="col"><div class="val">3.17</div><div class="track"><div class="fill" style="height:53%"></div></div><div class="lab">M4 + holidays</div></div>
-    <div class="col best"><div class="val">2.45</div><div class="track"><div class="fill" style="height:41%"></div></div><div class="lab">M5 + holidays + events</div></div>
+    <div class="col best"><div class="val">2.44</div><div class="track"><div class="fill" style="height:41%"></div></div><div class="lab">M5 + holidays + events</div></div>
   </div>
 </section>
 
 <section class="tilebox c-plan">
   <h2 class="t-title">True vs estimated</h2>
   <div class="muted">Effect size recovered by Prophet</div>
-  <div class="plan-item"><div class="row1">Payday <small>6.17% / 6.00%</small></div><div class="meter"><i style="width:100%"></i></div></div>
+  <div class="plan-item"><div class="row1">Payday <small>6.18% / 6.00%</small></div><div class="meter"><i style="width:100%"></i></div></div>
   <div class="plan-item"><div class="row1">Month-end <small>3.25% / 3.00%</small></div><div class="meter"><i style="width:100%"></i></div></div>
-  <div class="plan-item"><div class="row1">E-commerce sale <small>9.80% / 10.67%</small></div><div class="meter"><i style="width:92%"></i></div></div>
-  <div class="plan-item"><div class="row1">Diwali <small>7.75% / 9.14%</small></div><div class="meter"><i style="width:85%"></i></div></div>
+  <div class="plan-item"><div class="row1">E-commerce sale <small>10.21% / 10.67%</small></div><div class="meter"><i style="width:96%"></i></div></div>
+  <div class="plan-item"><div class="row1">Diwali <small>8.05% / 9.14%</small></div><div class="meter"><i style="width:88%"></i></div></div>
 </section>
 
 <section class="tilebox c-tx">
   <h2 class="t-title">Key findings</h2>
   <div class="tx"><div class="when">Question 1</div><div class="who"><span class="dot">&#127881;</span><div><b>Holidays and events help</b><span>On the days they describe</span></div></div><div class="amt">-30%<span>holiday-day error</span></div></div>
-  <div class="tx"><div class="when">Question 2</div><div class="who"><span class="dot">&#127919;</span><div><b>Effects recovered</b><span>Diwali is under-estimated</span></div></div><div class="amt">17%<span>peak vs 20% true</span></div></div>
-  <div class="tx"><div class="when">Question 3</div><div class="who"><span class="dot">&#9878;</span><div><b>Prophet beats SARIMAX</b><span>Out of sample, same calendar inputs</span></div></div><div class="amt">2.45%<span>vs 4.97%</span></div></div>
+  <div class="tx"><div class="when">Question 2</div><div class="who"><span class="dot">&#127919;</span><div><b>Effects recovered</b><span>Diwali is under-estimated</span></div></div><div class="amt">8.1%<span>vs 9.1% true</span></div></div>
+  <div class="tx"><div class="when">Question 3</div><div class="who"><span class="dot">&#9878;</span><div><b>Prophet beats SARIMAX</b><span>Out of sample, same calendar inputs</span></div></div><div class="amt">2.44%<span>vs 4.73%</span></div></div>
 </section>
 
 <section class="tilebox c-prem">
